@@ -1,72 +1,57 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const User = require('../models/User'); // ✅ Import Sequelize Model
 
 const router = express.Router();
 
-// POST - User Registration
+// Register Route
 router.post('/register', async (req, res) => {
-    try {
-      const { email, password } = req.body;
-      
-      // Generate a salt and hash the password
-      const saltRounds = 10;
-      const hashedPassword = await bcrypt.hash(password, saltRounds);
-      
-      // Create a new user with the hashed password
-      const newUser = new User({
-        email,
-        password: hashedPassword
-      });
-
-      // Save the user to the database
-      const savedUser = await newUser.save();
-  
-      res.status(200).json({ message: 'User registered successfully', user: savedUser });
-    } catch (error) {
-      console.error('Failed to register user:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-
-// POST - User Login
-router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
+    const hashedPassword = await bcrypt.hash(password, 10);
+    
+    // Create User in MySQL using Sequelize
+    const newUser = await User.create({ email, password: hashedPassword });
 
-    // Find the user by email
-    const user = await User.findOne({ email });
-    if (!user) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    // Compare the password
-    const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) {
-      return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    // Generate a JSON Web Token (JWT)
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-
-    res.status(200).json({ token, req_headers:req.headers });
+    res.status(201).json({ message: 'User registered', userId: newUser.id });
   } catch (error) {
-    console.error('Failed to log in:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ error: 'Error creating user' });
   }
 });
 
-// GET - Users
+// Login Route
+router.post('/login', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    
+    // Find user by email
+    const user = await User.findOne({ where: { email } });
+    if (!user) return res.status(401).json({ error: 'User not found' });
+
+    // Check password
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
+
+    // Generate JWT Token
+    const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+    res.json({ message: 'Login successful', token });
+  } catch (error) {
+    res.status(500).json({ error: 'Error logging in' });
+  }
+});
+
+// List all users
 router.get('/users', async (req, res) => {
-    try {
-      const users = await User.find({}, '-password');
-      res.status(200).json(users);
-    } catch (error) {
-      console.error('Failed to get users:', error);
-      res.status(500).json({ message: 'Internal server error' });
-    }
-  });
-  
+  try {
+      const users = await User.findAll();  // Fetch all users
+      res.json(users);
+  } catch (err) {
+      console.error('Error fetching users:', err);
+      res.status(500).json({ message: 'Server error' });
+  }
+});
+
 
 module.exports = router;

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login & Register</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app">
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab" onclick="showTab('login')">Login</button>
+            <button class="tab" onclick="showTab('register')">Register</button>
+            <button class="tab" onclick="showTab('users')">Users List</button>
+        </div>
+
+        <!-- Login Form -->
+        <div id="login" class="tab-content">
+            <h2>Login</h2>
+            <form id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email" required />
+                <input type="password" id="loginPassword" placeholder="Password" required />
+                <button type="submit">Login</button>
+            </form>
+            <p id="loginMessage"></p>
+        </div>
+
+        <!-- Register Form -->
+        <div id="register" class="tab-content">
+            <h2>Register</h2>
+            <form id="registerForm">
+                <input type="email" id="registerEmail" placeholder="Email" required />
+                <input type="password" id="registerPassword" placeholder="Password" required />
+                <button type="submit">Register</button>
+            </form>
+            <p id="registerMessage"></p>
+        </div>
+
+        <!-- Users List -->
+        <div id="users" class="tab-content">
+            <h2>Users List</h2>
+            <ul id="usersList"></ul>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,21 +1,25 @@
 const express = require('express');
-const mongoose = require('mongoose');
-const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv');
+const sequelize = require('./config/database'); 
+const cors = require('cors');  // Add this import
+
 
 dotenv.config();
 
 const app = express();
 
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => console.log('Connected to MongoDB'))
-  .catch(err => console.error('Failed to connect to MongoDB:', err));
+// Ensure database connection is established
+sequelize.authenticate()
+  .then(() => console.log('Connected to MySQL via Sequelize'))
+  .catch(err => console.error('Failed to connect to MySQL:', err));
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
+
+// Enable CORS for all origins (for local development)
+app.use(cors());  // Add this line to enable CORS for all routes
 
 // Middleware
 app.use(express.json());
@@ -23,5 +27,3 @@ app.use(express.json());
 // Routes
 const authRoutes = require('./routes/auth');
 app.use('/api/auth', authRoutes);
-
-
