@@ -1,4 +1,9 @@
-body {
+/* make widths include padding/border */
+*, *::before, *::after {
+    box-sizing: border-box;
+  }
+  
+  body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
@@ -7,69 +12,105 @@ body {
     align-items: center;
     height: 100vh;
     background-color: #f4f4f4;
-}
-
-#app {
+  }
+  
+  #app {
     width: 80%;
     max-width: 600px;
     background-color: white;
     padding: 20px;
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-.tabs {
+  }
+  
+  .tabs {
     display: flex;
-    justify-content: space-around;
+    justify-content: space-between;
+    gap: 8px;
     margin-bottom: 20px;
-}
-
-.tab {
+  }
+  
+  .tab {
+    flex: 1;
     background-color: #3498db;
     color: white;
     padding: 10px;
     border: none;
     cursor: pointer;
-}
-
-.tab:hover {
+    text-align: center;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+  }
+  
+  .tab:hover {
     background-color: #2980b9;
-}
-
-.tab-content {
-    display: none;
-}
-
-input {
+  }
+  
+  .tab.active {
+    background-color: #1f618d;
+  }
+  
+  .tab-content {
+    display: none; /* toggled via JS */
+  }
+  
+  input, button {
     width: 100%;
     padding: 10px;
     margin: 10px 0;
-    border: 1px solid #ccc;
     border-radius: 4px;
-}
-
-button {
+    border: 1px solid #ccc;
+  }
+  
+  button {
     background-color: #3498db;
     color: white;
-    padding: 10px;
-    width: 100%;
     border: none;
-    border-radius: 4px;
     cursor: pointer;
-}
-
-button:hover {
+    transition: background-color 0.2s;
+  }
+  
+  button:hover {
     background-color: #2980b9;
-}
-
-ul {
+  }
+  
+  .action-btn {
+    background-color: #2ecc71;
+    color: white;
+    border: none;
+    margin-bottom: 10px;
+  }
+  
+  .action-btn:hover {
+    background-color: #27ae60;
+  }
+  
+  ul {
     list-style-type: none;
     padding: 0;
-}
-
-li {
+  }
+  
+  li {
     padding: 10px;
     background-color: #ecf0f1;
     margin: 5px 0;
     border-radius: 4px;
-}
+  }
+  
+  /* Debug panel styling */
+  #debugPanel {
+    background-color: #1e1e1e;
+    color: #c5c6c7;
+    padding: 15px;
+    border-radius: 4px;
+    max-height: 300px;
+    overflow: auto;
+    font-family: monospace;
+  }
+  
+  #debugOutput {
+    white-space: pre-wrap;
+    word-break: break-all;
+    margin: 0;
+  }
+  

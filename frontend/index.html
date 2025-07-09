@@ -1,49 +1,96 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login & Register</title>
-    <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login &amp; Register</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="app">
-        <!-- Tabs -->
-        <div class="tabs">
-            <button class="tab" onclick="showTab('login')">Login</button>
-            <button class="tab" onclick="showTab('register')">Register</button>
-            <button class="tab" onclick="showTab('users')">Users List</button>
-        </div>
+  <div id="app">
 
-        <!-- Login Form -->
-        <div id="login" class="tab-content">
-            <h2>Login</h2>
-            <form id="loginForm">
-                <input type="email" id="loginEmail" placeholder="Email" required />
-                <input type="password" id="loginPassword" placeholder="Password" required />
-                <button type="submit">Login</button>
-            </form>
-            <p id="loginMessage"></p>
-        </div>
-
-        <!-- Register Form -->
-        <div id="register" class="tab-content">
-            <h2>Register</h2>
-            <form id="registerForm">
-                <input type="email" id="registerEmail" placeholder="Email" required />
-                <input type="password" id="registerPassword" placeholder="Password" required />
-                <button type="submit">Register</button>
-            </form>
-            <p id="registerMessage"></p>
-        </div>
-
-        <!-- Users List -->
-        <div id="users" class="tab-content">
-            <h2>Users List</h2>
-            <ul id="usersList"></ul>
-        </div>
+    <!-- Tabs: HTML Form is now the 2nd button -->
+    <div class="tabs">
+      <button class="tab active"      onclick="showTab('fetchLogin', this)">AJAX (Fetch)</button>
+      <button class="tab"             onclick="showTab('htmlForm', this)">HTML Form</button>
+      <button class="tab"             onclick="showTab('xhrLogin', this)">XHR Login</button>
+      <button class="tab"             onclick="showTab('jqueryLogin', this)">jQuery Login</button>
+      <button class="tab"             onclick="showTab('register', this)">Register</button>
+      <button class="tab"             onclick="showTab('users', this)">Users List</button>
     </div>
 
-    <script src="script.js"></script>
+    <!-- 1) AJAX (Fetch API) Login -->
+    <div id="fetchLogin" class="tab-content">
+      <h2>AJAX (Fetch) Login</h2>
+      <form id="loginForm">
+        <input type="email" id="loginEmail" placeholder="Email" required />
+        <input type="password" id="loginPassword" placeholder="Password" required />
+        <button type="submit">Login via Fetch</button>
+      </form>
+      <p id="loginMessage"></p>
+    </div>
+
+    <!-- 2) Native HTML Form Login (moved up) -->
+    <div id="htmlForm" class="tab-content">
+      <h2>HTML Form Login</h2>
+      <form action="https://www.julian-labs.com/api/auth/login"
+            method="POST"
+            onsubmit="return typeof bmak==='undefined'?true:bmak.form_submit();">
+        <input type="email" name="email" placeholder="Email" required />
+        <input type="password" name="password" placeholder="Password" required />
+        <input type="hidden" name="bm-telemetry" value="missing-telemetry" />
+        <input type="submit" value="Login via HTML Form" />
+      </form>
+    </div>
+
+    <!-- 3) XHR Login -->
+    <div id="xhrLogin" class="tab-content">
+      <h2>XHR Login</h2>
+      <form id="xhrLoginForm">
+        <input type="email" id="xhrEmail" placeholder="Email" required />
+        <input type="password" id="xhrPassword" placeholder="Password" required />
+        <button type="submit">Login via XHR</button>
+      </form>
+      <p id="xhrMessage"></p>
+    </div>
+
+    <!-- 4) jQuery Login -->
+    <div id="jqueryLogin" class="tab-content">
+      <h2>jQuery Login</h2>
+      <form id="jqueryLoginForm">
+        <input type="email" id="jqEmail" placeholder="Email" required />
+        <input type="password" id="jqPassword" placeholder="Password" required />
+        <button type="submit">Login via jQuery</button>
+      </form>
+      <p id="jqMessage"></p>
+    </div>
+
+    <!-- 5) Register Form -->
+    <div id="register" class="tab-content">
+      <h2>Register</h2>
+      <form id="registerForm">
+        <input type="email" id="registerEmail" placeholder="Email" required />
+        <input type="password" id="registerPassword" placeholder="Password" required />
+        <button type="submit">Register</button>
+      </form>
+      <p id="registerMessage"></p>
+    </div>
+
+    <!-- 6) Users List -->
+    <div id="users" class="tab-content">
+      <h2>Users List</h2>
+      <button id="refreshUsers" class="action-btn">Refresh Users</button>
+      <ul id="usersList">
+        <li>example@user.com</li>
+        <li>test@domain.com</li>
+      </ul>
+    </div>
+
+  </div>
+
+  <!-- jQuery for the jQuery-login tab -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Your existing script.js -->
+  <script src="script.js"></script>
 </body>
 </html>
