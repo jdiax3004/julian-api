@@ -1,0 +1,27 @@
+name: Deploy to Linode
+
+# Trigger this on every push to main
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Pull latest on Linode
+        uses: appleboy/ssh-action@v0.1.7
+        with:
+          host: ${{ secrets.LINODE_HOST }}
+          username: deploy
+          key:      ${{ secrets.LINODE_SSH_KEY }}
+          script: |
+            cd /var/www/julian-api
+            git pull origin main
+            # ─ Optional: build or restart your app
+            # npm ci && npm run build
+            # pm2 reload all  || sudo systemctl restart your-service
