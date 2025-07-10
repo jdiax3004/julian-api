@@ -10,32 +10,26 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Checkout your repo
+      # 1) Checkout your code
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2) Set up SSH key + trust known host
-      - name: Set up SSH
+      # 2) Install your SSH private key
+      - name: Set up SSH key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.LINODE_SSH_KEY }}
-          HOST:            ${{ secrets.LINODE_HOST }}
         run: |
-          mkdir -p ~/.ssh
-          chmod 700 ~/.ssh
+          mkdir -p $HOME/.ssh
+          echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_ed25519
+          chmod 600 $HOME/.ssh/id_ed25519
 
-          # write your private key
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-
-          # (optional) also scan & trust host key
-          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
-
-      # 3) SSH in and pull the latest code
+      # 3) SSH in and pull latest
       - name: Pull on Linode
         env:
           HOST: ${{ secrets.LINODE_HOST }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 \
+          ssh -i $HOME/.ssh/id_ed25519 \
               -o StrictHostKeyChecking=no \
-              deploy@"$HOST" \
+              -o UserKnownHostsFile=/dev/null \
+              deploy@$HOST \
               "cd /var/www/julian-api && git pull origin main"
