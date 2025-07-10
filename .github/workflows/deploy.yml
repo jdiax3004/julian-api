@@ -9,26 +9,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # 1) Checkout your repo
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # ───────────────────────────────────────────────────────────
-      # Ensure the Linode host key is trusted
-      - name: Add Linode to known_hosts
+      # 2) Set up SSH key + known_hosts
+      - name: Set up SSH
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.LINODE_SSH_KEY }}
+          HOST:            ${{ secrets.LINODE_HOST }}
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H ${{ secrets.LINODE_HOST }} >> ~/.ssh/known_hosts
+          chmod 700 ~/.ssh
 
-      # ───────────────────────────────────────────────────────────
-      - name: Pull latest on Linode
-        uses: appleboy/ssh-action@v0.1.7
-        with:
-          host:     ${{ secrets.LINODE_HOST }}
-          username: deploy
-          key:      ${{ secrets.LINODE_SSH_KEY }}
-          script: |
-            cd /var/www/julian-api
-            git pull origin main
-            # ─ Optional: build or restart
-            # npm ci && npm run build
-            # pm2 reload all || sudo systemctl restart your-service
+          # write your private key
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          # scan & trust your Linode’s host key
+          ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
+
+      # 3) SSH in and do the pull
+      - name: Pull on Linode
+        env:
+          HOST: ${{ secrets.LINODE_HOST }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes deploy@"$HOST" \
+            "cd /var/www/julian-api && git pull origin main"
