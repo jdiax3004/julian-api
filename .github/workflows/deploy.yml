@@ -2,7 +2,8 @@ name: Deploy to Linode
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
 
 jobs:
   deploy:
@@ -13,7 +14,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 2) Set up SSH key + known_hosts
+      # 2) Set up SSH key + trust known host
       - name: Set up SSH
         env:
           SSH_PRIVATE_KEY: ${{ secrets.LINODE_SSH_KEY }}
@@ -26,15 +27,15 @@ jobs:
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
 
-          # scan & trust your Linode’s host key
+          # (optional) also scan & trust host key
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
-- name: Pull on Linode
-  env:
-    HOST: ${{ secrets.LINODE_HOST }}
-  run: |
-    ssh -i ~/.ssh/id_ed25519 \
-        -o StrictHostKeyChecking=no \
-        deploy@"$HOST" \
-        "cd /var/www/julian-api && git pull origin main"
-
+      # 3) SSH in and pull the latest code
+      - name: Pull on Linode
+        env:
+          HOST: ${{ secrets.LINODE_HOST }}
+        run: |
+          ssh -i ~/.ssh/id_ed25519 \
+              -o StrictHostKeyChecking=no \
+              deploy@"$HOST" \
+              "cd /var/www/julian-api && git pull origin main"
