@@ -1,6 +1,6 @@
 // script.js
 
-const apiUrl = 'https://julian-labs.com/api/auth';  // backend URL
+const apiUrl = 'https://www.julian-labs.com/api/auth';  // backend URL
 
 /**
  * Tab-switcher: show only the requested panel,
