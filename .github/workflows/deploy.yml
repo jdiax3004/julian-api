@@ -10,26 +10,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1) Checkout your code
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      # 2) Install your SSH private key
-      - name: Set up SSH key
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.LINODE_SSH_KEY }}
-        run: |
-          mkdir -p $HOME/.ssh
-          echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_ed25519
-          chmod 600 $HOME/.ssh/id_ed25519
+    - name: Install SSH key for runner→Linode
+      env:
+        SSH_PRIVATE_KEY: ${{ secrets.LINODE_SSH_KEY }}
+      run: |
+        mkdir -p $HOME/.ssh
+        echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_ed25519
+        chmod 600 $HOME/.ssh/id_ed25519
 
-      # 3) SSH in and pull latest
-      - name: Pull on Linode
-        env:
-          HOST: ${{ secrets.LINODE_HOST }}
-        run: |
-          ssh -i $HOME/.ssh/id_ed25519 \
-              -o StrictHostKeyChecking=no \
-              -o UserKnownHostsFile=/dev/null \
-              deploy@$HOST \
-              "cd /var/www/julian-api && git pull origin main"
+    - name: Pull via HTTPS on Linode
+      env:
+        HOST:         ${{ secrets.LINODE_HOST }}
+        REPO_CLONE:   https://github.com/your-org/your-repo.git
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        ssh -i $HOME/.ssh/id_ed25519 \
+            -o StrictHostKeyChecking=no \
+            deploy@$HOST \
+            "cd /var/www/julian-api && \
+             git pull https://x-access-token:$GITHUB_TOKEN@$REPO_CLONE"
