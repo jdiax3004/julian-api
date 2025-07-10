@@ -29,10 +29,12 @@ jobs:
           # scan & trust your Linode’s host key
           ssh-keyscan -H "$HOST" >> ~/.ssh/known_hosts
 
-      # 3) SSH in and do the pull
-      - name: Pull on Linode
-        env:
-          HOST: ${{ secrets.LINODE_HOST }}
-        run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=yes deploy@"$HOST" \
-            "cd /var/www/julian-api && git pull origin main"
+- name: Pull on Linode
+  env:
+    HOST: ${{ secrets.LINODE_HOST }}
+  run: |
+    ssh -i ~/.ssh/id_ed25519 \
+        -o StrictHostKeyChecking=no \
+        deploy@"$HOST" \
+        "cd /var/www/julian-api && git pull origin main"
+
