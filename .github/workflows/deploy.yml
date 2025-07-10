@@ -13,27 +13,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      # 1) Install the runner→Linode SSH key
       - name: Set up SSH key
         env:
           SSH_PRIVATE_KEY: ${{ secrets.LINODE_SSH_KEY }}
         run: |
-          mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
+          mkdir -p $HOME/.ssh
+          echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_ed25519
+          chmod 600 $HOME/.ssh/id_ed25519
 
-      # 2) SSH in and reset the repo to match origin/main
-      - name: Hard‐reset repo on Linode
+      - name: Sync to origin/main on Linode
         env:
-          HOST: ${{ secrets.LINODE_HOST }}
+          HOST:         ${{ secrets.LINODE_HOST }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          ssh -i ~/.ssh/id_ed25519 \
+          ssh -i $HOME/.ssh/id_ed25519 \
               -o StrictHostKeyChecking=no \
               deploy@$HOST << 'EOF'
             cd /var/www/julian-api
+
+            # 1) Point origin at HTTPS + token
+            git remote set-url origin \
+              https://x-access-token:${GITHUB_TOKEN}@github.com/jdiax3004/julian-api.git
+
+            # 2) Download fresh main
             git fetch origin main
+
+            # 3) Throw away any local drift
             git reset --hard origin/main
-            # ─ Optional build/restart steps ─
-            # npm ci && npm run build
-            # pm2 reload all || sudo systemctl restart your-service
+
+            # 4) Log exactly what’s now deployed
+            echo "✅ Deployed HEAD: $(git rev-parse HEAD)"
+            ls -l   # show file timestamps for sanity
           EOF
