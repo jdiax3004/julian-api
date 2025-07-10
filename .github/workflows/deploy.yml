@@ -2,33 +2,33 @@ name: Deploy to Linode
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Install SSH key for runner→Linode
-      env:
-        SSH_PRIVATE_KEY: ${{ secrets.LINODE_SSH_KEY }}
-      run: |
-        mkdir -p $HOME/.ssh
-        echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_ed25519
-        chmod 600 $HOME/.ssh/id_ed25519
+      # 1) Install SSH key so we can reach the Linode
+      - name: Set up SSH key
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.LINODE_SSH_KEY }}
+        run: |
+          mkdir -p $HOME/.ssh
+          echo "$SSH_PRIVATE_KEY" > $HOME/.ssh/id_ed25519
+          chmod 600 $HOME/.ssh/id_ed25519
 
-    - name: Pull via HTTPS on Linode
-      env:
-        HOST:         ${{ secrets.LINODE_HOST }}
-        REPO_CLONE:   https://github.com/your-org/your-repo.git
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        ssh -i $HOME/.ssh/id_ed25519 \
-            -o StrictHostKeyChecking=no \
-            deploy@$HOST \
-            "cd /var/www/julian-api && \
-             git pull https://x-access-token:$GITHUB_TOKEN@$REPO_CLONE"
+      # 2) SSH in and do an HTTPS-authenticated pull
+      - name: Pull via HTTPS on Linode
+        env:
+          HOST:        ${{ secrets.LINODE_HOST }}
+          # build one URL that already contains the token and full https:// prefix
+          REMOTE_URL:  https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/your-org/your-repo.git
+        run: |
+          ssh -i $HOME/.ssh/id_ed25519 \
+              -o StrictHostKeyChecking=no \
+              deploy@$HOST \
+              "cd /var/www/julian-api && git pull $REMOTE_URL"
