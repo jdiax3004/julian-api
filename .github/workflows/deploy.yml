@@ -41,7 +41,13 @@ jobs:
             # 3) Throw away any local drift
             git reset --hard origin/main
 
-            # 4) Log exactly what’s now deployed
+            # 4) Reinstall deps if package.json changed
+            npm ci --production
+
+            # 5) Reload your PM2 process so it picks up the new code
+            pm2 reload api || pm2 restart api
+
+            # 6) Log exactly what’s now deployed
             echo "✅ Deployed HEAD: $(git rev-parse HEAD)"
             ls -l   # show file timestamps for sanity
           EOF

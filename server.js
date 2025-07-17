@@ -2,11 +2,13 @@ const express = require('express');
 const dotenv = require('dotenv');
 const sequelize = require('./config/database'); 
 const cors = require('cors');  // Add this import
+const expressOasGenerator = require('express-oas-generator');
 
 
 dotenv.config();
 
 const app = express();
+expressOasGenerator.init(app, {}, './openapi.json', 5000);
 
 // Ensure database connection is established
 sequelize.authenticate()
