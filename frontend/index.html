@@ -7,8 +7,13 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div id="app">
 
+  
+  <div id="app">
+    <h1 class="site-title">
+      JULIAN LABS <span class="emoji" role="img" aria-label="lab">🧪</span>
+    </h1>
+  
     <!-- Tabs: HTML Form is now the 2nd button -->
     <div class="tabs">
       <button class="tab active"      onclick="showTab('fetchLogin', this)">AJAX (Fetch) NEW</button>
@@ -87,6 +92,33 @@
     </div>
 
   </div>
+
+      <!-- Floating Chat Icon -->
+      <div id="chatbot-icon">💬</div>
+
+      <!-- Chatbot Container -->
+      <div id="chatbot-container" class="hidden">
+        <div id="chatbot-header">
+          <span>Chatbot</span>
+          <button id="close-btn">&times;</button>
+        </div>
+        <div id="key-panel">
+          <label for="openai-key" style="color:#bbb;font-size:12px">OpenAI API key (stored locally)</label>
+          <div class="controls">
+            <input id="openai-key" type="password" placeholder="sk-…" />
+            <button id="save-key">Save</button>
+            <button id="clear-key">Clear</button>
+          </div>
+          <div id="key-status" style="display:none;color:#8bc34a;font-size:12px;margin-top:6px">Saved</div>
+        </div>            
+        <div id="chatbot-body">
+          <div id="chatbot-messages"></div>
+        </div>
+        <div id="chatbot-input-container">
+          <input type="text" id="chatbot-input" placeholder="Type a message..." />
+          <button id="send-btn">Send</button>
+        </div>
+      </div>
 
   <!-- jQuery for the jQuery-login tab -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>

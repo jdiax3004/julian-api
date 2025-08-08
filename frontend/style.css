@@ -113,4 +113,236 @@
     word-break: break-all;
     margin: 0;
   }
-  
+
+
+/* Floating Chat Icon */
+#chatbot-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  background-color: #3498db;
+  color: white;
+  font-size: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.2s;
+}
+
+#chatbot-icon:hover {
+  background-color: #2980b9;
+  transform: scale(1.1);
+}
+
+/* Chatbot Container */
+#chatbot-container {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  width: 350px;
+  height: 450px;
+  background-color: #1f1f1f;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.6);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Hide Chatbot Initially */
+.hidden {
+  display: none !important;
+}
+
+/* make the header a positioning context */
+#chatbot-header {
+  position: relative;
+  background-color: #3498db;
+  color: white;
+  padding: 12px 44px 12px 15px;  /* extra right padding so text doesn't sit under the X */
+  display: flex;
+  align-items: center;
+}
+
+/* pin the close button to the corner */
+#close-btn {
+  position: absolute;
+  right: 8px;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: none;
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Chatbot Body */
+#chatbot-body {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+/* Chatbot Messages */
+#chatbot-messages {
+  display: flex;
+  flex-direction: column;
+}
+
+.message {
+  margin-bottom: 15px;
+  padding: 12px;
+  border-radius: 8px;
+  max-width: 85%;
+}
+
+.message.user {
+  background-color: #3498db;
+  color: white;
+  align-self: flex-end;
+}
+
+.message.bot {
+  background-color: #333;
+  color: white;
+  align-self: flex-start;
+}
+
+/* Input Section */
+#chatbot-input-container {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #444;
+  background-color: #2c2c2c;
+}
+
+#chatbot-input {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 10px;
+  background-color: #333;
+  color: white;
+  width: auto;
+}
+
+#send-btn {
+  margin-left: 10px;
+  padding: 10px 15px;
+  background-color: #3498db;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+#send-btn:hover {
+  background-color: #2980b9;
+}
+
+/* scope full-width controls to the login/register card only */
+#app input,
+#app button {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* chatbot overrides */
+#chatbot-input-container {               /* send row */
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+#chatbot-input {                          /* message box */
+  flex: 1;
+  width: auto;            /* override the global 100% */
+  min-width: 0;           /* allow shrinking in flex */
+}
+#send-btn {
+  width: auto;
+  flex: 0 0 auto;
+  margin: 0;
+  padding: 10px 16px;
+}
+
+/* BYOK panel */
+#key-panel { padding: 10px; background:#222; border-top:1px solid #444; }
+#key-panel .controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+#openai-key {
+  flex: 1;
+  width: auto;            /* not 100% */
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background:#333;
+  color:#fff;
+}
+#save-key, #clear-key {
+  flex: 0 0 auto;
+  width: auto;
+  margin: 0;
+  padding: 10px 12px;
+}
+
+.site-title {
+  margin: 0 0 16px;
+  font-size: 32px;      /* adjust to taste */
+  font-weight: 800;
+  text-align: center;
+  letter-spacing: .2px;
+}
+
+.site-title .emoji {
+  font-size: 1em;       /* same height as text */
+  vertical-align: -0.12em;
+}
+
+@media (max-width: 420px) {
+  .site-title { font-size: 26px; }
+}
+
+/* Prefer WOFF2 if you have it, but TTF works */
+@font-face {
+  font-family: "Longhaul";
+  src: url("assets/fonts/longhaul.woff2") format("woff2"),
+       url("assets/fonts/longhaul.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;   /* avoids invisible text while loading */
+}
+
+/* Apply it to the site title only */
+.site-title {
+  font-family: "Longhaul", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 48px;
+  font-weight: 400;
+  text-align: center;
+  letter-spacing: 0.5px;
+  margin: 0 0 16px;
+  color: #444;
+}
+
+/* Keep the emoji using a color-emoji font (Longhaul likely has no emoji) */
+.site-title .emoji {
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif;
+  font-size: 1em;
+  vertical-align: -0.12em;
+}

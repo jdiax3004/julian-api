@@ -151,6 +151,135 @@ async function fetchUsers() {
   }
 }
 
+const KEY_STORAGE = 'openai_api_key';        // change if you like
+
+function getApiKey() {
+  return sessionStorage.getItem(KEY_STORAGE) || "";   // ephemeral (clears on tab close)
+}
+function saveApiKey(k) {
+  const v = (k || "").trim();
+  if (!v) return clearApiKey();
+  sessionStorage.setItem(KEY_STORAGE, v);
+}
+function clearApiKey() {
+  sessionStorage.removeItem(KEY_STORAGE);
+}
+
+const keyInput  = document.getElementById('openai-key');
+const keyStatus = document.getElementById('key-status');
+
+document.getElementById('save-key').addEventListener('click', () => {
+  saveApiKey(keyInput.value);
+  keyInput.value = '';
+  keyStatus.style.display = 'inline';
+  keyStatus.textContent = 'Saved to this browser (session)';
+  setTimeout(() => (keyStatus.style.display = 'none'), 2000);
+});
+
+document.getElementById('clear-key').addEventListener('click', () => {
+  clearApiKey();
+  keyStatus.style.display = 'inline';
+  keyStatus.textContent = 'Key cleared';
+  setTimeout(() => (keyStatus.style.display = 'none'), 1500);
+});
+
+if (getApiKey()) {
+  keyStatus.style.display = 'inline';
+  keyStatus.textContent = 'A key is saved (session)';
+  setTimeout(() => (keyStatus.style.display = 'none'), 2000);
+}
+
+
+
+document.addEventListener("DOMContentLoaded", function () {
+  const chatbotContainer = document.getElementById("chatbot-container");
+  const closeBtn = document.getElementById("close-btn");
+  const sendBtn = document.getElementById("send-btn");
+  const chatbotInput = document.getElementById("chatbot-input");
+  const chatbotMessages = document.getElementById("chatbot-messages");
+
+  const chatbotIcon = document.getElementById("chatbot-icon");
+  const closeButton = document.getElementById("close-btn");
+
+  // Toggle chatbot visibility when clicking the icon
+  // Show chatbot when clicking the icon
+  chatbotIcon.addEventListener("click", function () {
+    chatbotContainer.classList.remove("hidden");
+    chatbotIcon.style.display = "none"; // Hide chat icon
+  });
+
+  // Also toggle when clicking the close button
+  closeButton.addEventListener("click", function () {
+    chatbotContainer.classList.add("hidden");
+    chatbotIcon.style.display = "flex"; // Show chat icon again
+  });
+
+  sendBtn.addEventListener("click", sendMessage);
+  chatbotInput.addEventListener("keypress", function (e) {
+    if (e.key === "Enter") {
+      sendMessage();
+    }
+  });
+
+  function sendMessage() {
+    const userMessage = chatbotInput.value.trim();
+    if (userMessage) {
+      appendMessage("user", userMessage);
+      chatbotInput.value = "";
+      getBotResponse(userMessage);
+    }
+  }
+
+  function appendMessage(sender, message) {
+    const messageElement = document.createElement("div");
+    messageElement.classList.add("message", sender);
+    messageElement.textContent = message;
+    chatbotMessages.appendChild(messageElement);
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+  }
+  async function getBotResponse(userMessage) {
+    const apiKey = getApiKey();
+    if (!apiKey) {
+      appendMessage("bot", "⚠️ Add your OpenAI API key above to chat.");
+      return;
+    }
+  
+    const resp = await fetch("https://api.openai.com/v1/responses", {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${apiKey}`,     // ← BYOK
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "gpt-5-nano",
+        input: userMessage,
+        max_output_tokens: 256,
+        reasoning: { effort: "low" },
+        text: { format: { type: "text" }, verbosity: "low" }
+      }),
+    });
+  
+    if (!resp.ok) {
+      const err = await resp.text();
+      appendMessage("bot", `Error: ${resp.status} ${resp.statusText}`);
+      console.error(err);
+      return;
+    }
+  
+    const data = await resp.json();
+    const botMessage =
+      data.output_text ||
+      (data.output ?? [])
+        .flatMap(o => o.content ?? [])
+        .map(c => c.text || "")
+        .join("") || "(no content)";
+  
+    appendMessage("bot", botMessage);
+  }
+  
+});
+
+
 // Manual “Refresh Users”
 document.getElementById('refreshUsers')
   .addEventListener('click', fetchUsers);
