@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
   
-    const resp = await fetch(`${apiUrl}/api/chat`, {
+    const resp = await fetch(`${apiUrl}/chat`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,     // ← BYOK
