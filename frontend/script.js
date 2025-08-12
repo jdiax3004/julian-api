@@ -1,6 +1,6 @@
 // script.js
 
-const apiUrl = 'https://www.julian-labs.com/api/auth';  // backend URL
+const apiUrl = 'https://www.julian-labs.com/api';  // backend URL
 
 /**
  * Tab-switcher: show only the requested panel,
@@ -28,7 +28,7 @@ document.getElementById('loginForm')
     const msg = document.getElementById('loginMessage');
 
     try {
-      const res = await fetch(`${apiUrl}/login`, {
+      const res = await fetch(`${apiUrl}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -58,7 +58,7 @@ document.getElementById('xhrLoginForm')
     const msg = document.getElementById('xhrMessage');
 
     const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${apiUrl}/login`);
+    xhr.open('POST', `${apiUrl}/auth/login`);
     xhr.setRequestHeader('Content-Type', 'application/json');
     xhr.onreadystatechange = () => {
       if (xhr.readyState === 4) {
@@ -85,7 +85,7 @@ $('#jqueryLoginForm').on('submit', function(e) {
   const msg    = $('#jqMessage');
 
   $.ajax({
-    url: `${apiUrl}/login`,
+    url: `${apiUrl}/auth/login`,
     method: 'POST',
     contentType: 'application/json',
     data: JSON.stringify({ email, password }),
@@ -112,7 +112,7 @@ document.getElementById('registerForm')
     const msg = document.getElementById('registerMessage');
 
     try {
-      const res = await fetch(`${apiUrl}/register`, {
+      const res = await fetch(`${apiUrl}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -138,7 +138,7 @@ async function fetchUsers() {
   const ul = document.getElementById('usersList');
   ul.innerHTML = '<li>Loading…</li>';
   try {
-    const res = await fetch(`${apiUrl}/users`);
+    const res = await fetch(`${apiUrl}/auth/users`);
     const list = await res.json();
     ul.innerHTML = '';
     list.forEach(u => {
