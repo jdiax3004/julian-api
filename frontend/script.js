@@ -244,7 +244,7 @@ document.addEventListener("DOMContentLoaded", function () {
       return;
     }
   
-    const resp = await fetch("https://api.openai.com/v1/responses", {
+    const resp = await fetch(`${apiUrl}/api/chat`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${apiKey}`,     // ← BYOK
