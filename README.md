@@ -1,9 +1,3 @@
 # julian-api
 API for Testing Env Test
-One more test
-One more
-One more
-one more
-one more
-one last
-One more still
+This push will include the last working version of the HTTP chat, from now on I will test the WebSockets version
