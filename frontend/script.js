@@ -290,3 +290,76 @@ document.getElementById('refreshUsers')
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelector('.tab').click();
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+  const log   = document.getElementById('ws-log');
+  const input = document.getElementById('ws-input');
+  const send  = document.getElementById('ws-send');
+  const keyInput   = document.getElementById('ws-openai-key');
+  const keyStatus  = document.getElementById('ws-key-status');
+  const saveKeyBtn = document.getElementById('ws-save-key');
+  const clearKeyBtn= document.getElementById('ws-clear-key');
+
+  const WS_KEY_STORAGE = 'ws_openai_api_key';
+  const getKey   = () => sessionStorage.getItem(WS_KEY_STORAGE) || '';
+  const saveKey  = k => k ? sessionStorage.setItem(WS_KEY_STORAGE, k.trim()) : sessionStorage.removeItem(WS_KEY_STORAGE);
+  const clearKey = () => sessionStorage.removeItem(WS_KEY_STORAGE);
+
+  saveKeyBtn.addEventListener('click', () => {
+    saveKey(keyInput.value);
+    keyInput.value = '';
+    keyStatus.textContent = 'Saved';
+    keyStatus.style.display = 'inline';
+    setTimeout(() => keyStatus.style.display = 'none', 2000);
+  });
+  clearKeyBtn.addEventListener('click', () => {
+    clearKey();
+    keyStatus.textContent = 'Key cleared';
+    keyStatus.style.display = 'inline';
+    setTimeout(() => keyStatus.style.display = 'none', 1500);
+  });
+
+  // Connect to your backend, passing the key as a query parameter
+  const proto = location.protocol === 'https:' ? 'wss' : 'ws';
+  const key   = encodeURIComponent(getKey());
+  const ws    = new WebSocket(`${proto}://${location.host}/ws?key=${key}`);
+
+  function append(role, text) {
+    const div = document.createElement('div');
+    div.className = `ws-message ${role}`;
+    div.textContent = `${role === 'user' ? 'You' : 'Bot'}: ${text}`;
+    log.appendChild(div);
+    log.scrollTop = log.scrollHeight;
+  }
+
+  ws.addEventListener('open',  () => append('bot','🔌 Connected to WS'));
+  ws.addEventListener('close', () => append('bot','❌ Disconnected'));
+  ws.addEventListener('error', () => append('bot','⚠️ WS Error'));
+
+  ws.addEventListener('message', evt => {
+    const data = JSON.parse(evt.data);
+    if (data.type === 'response.delta') {
+      const pieces = data.delta?.output ?? [];
+      for (const p of pieces) {
+        if (Array.isArray(p.content)) {
+          for (const c of p.content) {
+            if (c.type === 'output_text_delta' && c.text) append('bot', c.text);
+          }
+        }
+      }
+    }
+    if (data.type === 'response.completed') append('bot','(done)');
+    if (data.type === 'error') append('bot','⚠️ ' + (data.error?.message || 'Error'));
+  });
+
+  function sendMsg() {
+    const msg = input.value.trim();
+    if (!msg) return;
+    append('user', msg);
+    ws.send(JSON.stringify({ text: msg }));
+    input.value = '';
+  }
+
+  send.addEventListener('click', sendMsg);
+  input.addEventListener('keypress', e => { if (e.key === 'Enter') sendMsg(); });
+});

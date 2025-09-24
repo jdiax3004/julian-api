@@ -11,7 +11,7 @@
   
   <div id="app">
     <h1 class="site-title">
-      Julian's Labs <span class="emoji" role="img" aria-label="lab">🧪</span>
+      Akamai Laboratory <span class="emoji" role="img" aria-label="lab">🧪</span>
     </h1>
   
     <!-- Tabs: HTML Form is now the 2nd button -->
@@ -22,6 +22,7 @@
       <button class="tab"             onclick="showTab('jqueryLogin', this)">jQuery Login</button>
       <button class="tab"             onclick="showTab('register', this)">Register</button>
       <button class="tab"             onclick="showTab('users', this)">Users List</button>
+      <button class="tab" onclick="showTab('wsChat', this)">WS Chat</button>
     </div>
 
     <!-- 1) AJAX (Fetch API) Login -->
@@ -90,6 +91,26 @@
         <li>test@domain.com</li>
       </ul>
     </div>
+
+    <!-- 7) WS Chat -->
+<div id="wsChat" class="tab-content">
+  <div id="wsKeyPanel" class="ws-key-panel">
+    <label for="ws-openai-key">OpenAI API key (stored locally)</label>
+    <div class="controls">
+      <input id="ws-openai-key" type="password" placeholder="sk-…" />
+      <button id="ws-save-key">Save</button>
+      <button id="ws-clear-key">Clear</button>
+    </div>
+    <div id="ws-key-status" class="key-status" style="display:none;">Saved</div>
+  </div>
+  <h2>WebSocket Chat</h2>
+  <div id="ws-log" class="ws-log"></div>
+  <div class="ws-input-row">
+    <input id="ws-input" type="text" placeholder="Type a message…" />
+    <button id="ws-send">Send</button>
+  </div>
+</div>
+
 
   </div>
 
