@@ -1,6 +1,6 @@
 // ========= Config =========
 const apiUrl = "https://www.julian-labs.com/api"; // backend URL
-const WS_URL = "wss://www.julian-labs.com/ws/echo";
+const WS_URL = "wss://www.julian-labs.com/ws/akamai";
 
 // ========= Simple Router (show/hide sections) =========
 function showSection(id) {
