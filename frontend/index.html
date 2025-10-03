@@ -2,127 +2,290 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Login &amp; Register</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Julian's Labs 🔬</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <!-- ✅ Tailwind Play CDN (locked version) -->
+  <script src="https://cdn.tailwindcss.com/3.4.1"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { brand: '#2563eb' } } }
+    }
+  </script>
 </head>
-<body>
 
-  
-  <div id="app">
-    <h1 class="site-title">
-      Julian's Labs <span class="emoji" role="img" aria-label="lab">🧪</span>
-    </h1>
-  
-    <!-- Tabs: HTML Form is now the 2nd button -->
-    <div class="tabs">
-      <button class="tab active"      onclick="showTab('fetchLogin', this)">AJAX (Fetch) NEW</button>
-      <button class="tab"             onclick="showTab('htmlForm', this)">HTML Form</button>
-      <button class="tab"             onclick="showTab('xhrLogin', this)">XHR Login</button>
-      <button class="tab"             onclick="showTab('jqueryLogin', this)">jQuery Login</button>
-      <button class="tab"             onclick="showTab('register', this)">Register</button>
-      <button class="tab"             onclick="showTab('users', this)">Users List</button>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="max-w-3xl w-full p-6">
+    <!-- Header -->
+    <header class="text-center mb-6">
+      <h1 class="text-[34px] font-extrabold text-gray-800 tracking-tight">
+        Julian's Labs <span aria-label="lab">🔬</span>
+      </h1>
+      <p class="text-gray-500 mt-1">Authentication playground & WebSocket client</p>
+    </header>
+
+    <!-- Main Card -->
+    <div class="bg-white rounded-2xl shadow-xl p-5">
+
+      <!-- Landing Menu (default) -->
+      <section id="menu">
+        <h2 class="text-lg font-semibold text-gray-800 mb-4">Choose a module</h2>
+        <div class="grid gap-4 sm:grid-cols-2">
+          <button class="text-left bg-white border rounded-xl p-4 hover:shadow-md transition"
+                  onclick="showSection('ajax')">
+            <div class="flex flex-col">
+              <div class="text-base font-semibold text-gray-800">🌐 AJAX (Fetch) Login</div>
+              <div class="text-sm text-gray-500 mt-1">POST /auth/login (fetch)</div>
+            </div>
+          </button>
+
+          <button class="text-left bg-white border rounded-xl p-4 hover:shadow-md transition"
+                  onclick="showSection('htmlform')">
+            <div class="flex flex-col">
+              <div class="text-base font-semibold text-gray-800">🌐 HTML Form Login</div>
+              <div class="text-sm text-gray-500 mt-1">Native form POST</div>
+            </div>
+          </button>
+
+          <button class="text-left bg-white border rounded-xl p-4 hover:shadow-md transition"
+                  onclick="showSection('xhr')">
+            <div class="flex flex-col">
+              <div class="text-base font-semibold text-gray-800">🌐 XHR Login</div>
+              <div class="text-sm text-gray-500 mt-1">XMLHttpRequest POST</div>
+            </div>
+          </button>
+
+          <button class="text-left bg-white border rounded-xl p-4 hover:shadow-md transition"
+                  onclick="showSection('jquery')">
+            <div class="flex flex-col">
+              <div class="text-base font-semibold text-gray-800">🌐 jQuery Login</div>
+              <div class="text-sm text-gray-500 mt-1">$.ajax POST</div>
+            </div>
+          </button>
+
+          <button class="text-left bg-white border rounded-xl p-4 hover:shadow-md transition"
+                  onclick="showSection('register')">
+            <div class="flex flex-col">
+              <div class="text-base font-semibold text-gray-800">🌐 Register</div>
+              <div class="text-sm text-gray-500 mt-1">Create user</div>
+            </div>
+          </button>
+
+          <button class="text-left bg-white border rounded-xl p-4 hover:shadow-md transition"
+                  onclick="showSection('users')">
+            <div class="flex flex-col">
+              <div class="text-base font-semibold text-gray-800">🌐 Users List</div>
+              <div class="text-sm text-gray-500 mt-1">GET /auth/users</div>
+            </div>
+          </button>
+
+          <button class="text-left bg-white border rounded-xl p-4 hover:shadow-md transition sm:col-span-2"
+                  onclick="showSection('wschat')">
+            <div class="flex items-center justify-between">
+              <div class="flex flex-col">
+                <div class="text-base font-semibold text-gray-800">💬 WebSocket Chat</div>
+                <div class="text-sm text-gray-500 mt-1">Echo client via Zuplo</div>
+              </div>
+              <span class="text-brand">→</span>
+            </div>
+          </button>
+
+          <button class="text-left bg-white border rounded-xl p-4 hover:shadow-md transition sm:col-span-2"
+                  onclick="showSection('chatbot')">
+            <div class="flex items-center justify-between">
+              <div class="flex flex-col">
+                <div class="text-base font-semibold text-gray-800">💬 Chatbot (BYOK)</div>
+                <div class="text-sm text-gray-500 mt-1">Text chat using your OpenAI API key</div>
+              </div>
+              <span class="text-brand">→</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <!-- AJAX (Fetch) Login -->
+      <section id="ajax" class="hidden">
+        <div class="flex items-center justify-between">
+          <button class="text-sm text-brand hover:underline" onclick="showSection('menu')">← Back to Menu</button>
+          <h2 class="text-lg font-semibold text-gray-800">AJAX (Fetch) Login</h2>
+        </div>
+        <form id="loginForm" class="space-y-3 mt-4">
+          <input type="email" id="loginEmail" placeholder="Email" required
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <input type="password" id="loginPassword" placeholder="Password" required
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <button type="submit" class="bg-brand text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full">
+            Login via Fetch
+          </button>
+        </form>
+        <p id="loginMessage" class="mt-2 text-sm"></p>
+      </section>
+
+      <!-- HTML Form Login -->
+      <section id="htmlform" class="hidden">
+        <div class="flex items-center justify-between">
+          <button class="text-sm text-brand hover:underline" onclick="showSection('menu')">← Back to Menu</button>
+          <h2 class="text-lg font-semibold text-gray-800">HTML Form Login</h2>
+        </div>
+        <form action="https://www.julian-labs.com/api/auth/login" method="POST" class="space-y-3 mt-4">
+          <input type="email" name="email" placeholder="Email" required
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <input type="password" name="password" placeholder="Password" required
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <input type="hidden" name="bm-telemetry" value="missing-telemetry" />
+          <button type="submit" class="bg-brand text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full">
+            Login via HTML Form
+          </button>
+        </form>
+      </section>
+
+      <!-- XHR Login -->
+      <section id="xhr" class="hidden">
+        <div class="flex items-center justify-between">
+          <button class="text-sm text-brand hover:underline" onclick="showSection('menu')">← Back to Menu</button>
+          <h2 class="text-lg font-semibold text-gray-800">XHR Login</h2>
+        </div>
+        <form id="xhrLoginForm" class="space-y-3 mt-4">
+          <input type="email" id="xhrEmail" placeholder="Email" required
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <input type="password" id="xhrPassword" placeholder="Password" required
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <button type="submit" class="bg-brand text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full">
+            Login via XHR
+          </button>
+        </form>
+        <p id="xhrMessage" class="mt-2 text-sm"></p>
+      </section>
+
+      <!-- jQuery Login -->
+      <section id="jquery" class="hidden">
+        <div class="flex items-center justify-between">
+          <button class="text-sm text-brand hover:underline" onclick="showSection('menu')">← Back to Menu</button>
+          <h2 class="text-lg font-semibold text-gray-800">jQuery Login</h2>
+        </div>
+        <form id="jqueryLoginForm" class="space-y-3 mt-4">
+          <input type="email" id="jqEmail" placeholder="Email" required
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <input type="password" id="jqPassword" placeholder="Password" required
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <button type="submit" class="bg-brand text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full">
+            Login via jQuery
+          </button>
+        </form>
+        <p id="jqMessage" class="mt-2 text-sm"></p>
+      </section>
+
+      <!-- Register -->
+      <section id="register" class="hidden">
+        <div class="flex items-center justify-between">
+          <button class="text-sm text-brand hover:underline" onclick="showSection('menu')">← Back to Menu</button>
+          <h2 class="text-lg font-semibold text-gray-800">Register</h2>
+        </div>
+        <form id="registerForm" class="space-y-3 mt-4">
+          <input type="email" id="registerEmail" placeholder="Email" required
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <input type="password" id="registerPassword" placeholder="Password" required
+                 class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <button type="submit" class="bg-brand text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full">
+            Register
+          </button>
+        </form>
+        <p id="registerMessage" class="mt-2 text-sm"></p>
+      </section>
+
+      <!-- Users -->
+      <section id="users" class="hidden">
+        <div class="flex items-center justify-between">
+          <button class="text-sm text-brand hover:underline" onclick="showSection('menu')">← Back to Menu</button>
+          <h2 class="text-lg font-semibold text-gray-800">Users List</h2>
+        </div>
+        <div class="mt-4">
+          <button id="refreshUsers" class="bg-green-600 text-white px-3 py-2 rounded-lg hover:bg-green-700 transition">
+            Refresh Users
+          </button>
+          <ul id="usersList" class="mt-3 space-y-2">
+            <li class="px-3 py-2 bg-gray-100 rounded-lg text-gray-800">example@user.com</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- WebSocket Chat -->
+      <section id="wschat" class="hidden">
+        <div class="flex items-center justify-between">
+          <button class="text-sm text-brand hover:underline" onclick="showSection('menu')">← Back to Menu</button>
+          <h2 class="text-lg font-semibold text-gray-800">WebSocket Chat</h2>
+        </div>
+
+        <div class="mt-4 bg-white border rounded-xl overflow-hidden">
+          <!-- Header -->
+          <div class="p-3 border-b flex justify-between items-center bg-gray-50">
+            <div class="text-sm text-gray-700">
+              Status: <span id="ws-status" class="text-red-600">Disconnected</span>
+            </div>
+            <div class="flex gap-2">
+              <button id="ws-connect" class="px-3 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700">Open</button>
+              <button id="ws-disconnect" class="px-3 py-1 text-sm rounded bg-red-600 text-white hover:bg-red-700">Close</button>
+            </div>
+          </div>
+
+          <!-- Messages -->
+          <div id="ws-messages" class="h-72 overflow-y-auto p-4 space-y-2 bg-white">
+            <!-- messages injected here -->
+          </div>
+
+          <!-- Input -->
+          <form id="ws-form" class="p-3 border-t bg-gray-50 flex gap-2">
+            <input id="ws-input" type="text" placeholder="Type a message..."
+                   class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand"
+                   required />
+            <button type="submit" class="bg-brand text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+              Send
+            </button>
+          </form>
+        </div>
+      </section>
+
+      <!-- Chatbot (BYOK) -->
+      <section id="chatbot" class="hidden">
+        <div class="flex items-center justify-between">
+          <button class="text-sm text-brand hover:underline" onclick="showSection('menu')">← Back to Menu</button>
+          <h2 class="text-lg font-semibold text-gray-800">💬 Chatbot (BYOK)</h2>
+        </div>
+
+        <!-- Key panel -->
+        <div class="mt-4 bg-gray-900 text-white rounded-xl overflow-hidden border border-gray-800">
+          <div class="px-4 py-3 border-b border-gray-800 flex items-center justify-between">
+            <span class="text-sm text-gray-300">OpenAI API key (stored in session)</span>
+          </div>
+          <div class="p-3 flex items-center gap-2">
+            <input id="cb-key" type="password" placeholder="sk-…"
+                   class="flex-1 bg-gray-800 border border-gray-700 rounded-lg px-3 py-2 text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand" />
+            <button id="cb-save-key" class="bg-brand text-white px-3 py-2 rounded-lg text-sm hover:bg-blue-700">Save</button>
+            <button id="cb-clear-key" class="bg-gray-700 text-white px-3 py-2 rounded-lg text-sm hover:bg-gray-600">Clear</button>
+          </div>
+          <div id="cb-key-status" class="px-4 pb-3 text-xs text-green-400 hidden">Saved</div>
+        </div>
+
+        <!-- Messages -->
+        <div id="cb-messages" class="mt-4 h-72 overflow-y-auto p-4 space-y-2 bg-white border rounded-xl">
+          <!-- chat messages injected here -->
+        </div>
+
+        <!-- Input -->
+        <div class="mt-3 flex items-center gap-2">
+          <input id="cb-input" type="text" placeholder="Type a message…"
+                 class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <button id="cb-send-btn" class="bg-brand text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+            Send
+          </button>
+        </div>
+      </section>
+
     </div>
-
-    <!-- 1) AJAX (Fetch API) Login -->
-    <div id="fetchLogin" class="tab-content">
-      <h2>AJAX (Fetch) Login</h2>
-      <form id="loginForm">
-        <input type="email" id="loginEmail" placeholder="Email" required />
-        <input type="password" id="loginPassword" placeholder="Password" required />
-        <button type="submit">Login via Fetch</button>
-      </form>
-      <p id="loginMessage"></p>
-    </div>
-
-    <!-- 2) Native HTML Form Login (moved up) -->
-    <div id="htmlForm" class="tab-content">
-      <h2>HTML Form Login</h2>
-      <form action="https://www.julian-labs.com/api/auth/login"
-            method="POST"
-            onsubmit="return typeof bmak==='undefined'?true:bmak.form_submit();">
-        <input type="email" name="email" placeholder="Email" required />
-        <input type="password" name="password" placeholder="Password" required />
-        <input type="hidden" name="bm-telemetry" value="missing-telemetry" />
-        <input type="submit" value="Login via HTML Form" />
-      </form>
-    </div>
-
-    <!-- 3) XHR Login -->
-    <div id="xhrLogin" class="tab-content">
-      <h2>XHR Login</h2>
-      <form id="xhrLoginForm">
-        <input type="email" id="xhrEmail" placeholder="Email" required />
-        <input type="password" id="xhrPassword" placeholder="Password" required />
-        <button type="submit">Login via XHR</button>
-      </form>
-      <p id="xhrMessage"></p>
-    </div>
-
-    <!-- 4) jQuery Login -->
-    <div id="jqueryLogin" class="tab-content">
-      <h2>jQuery Login</h2>
-      <form id="jqueryLoginForm">
-        <input type="email" id="jqEmail" placeholder="Email" required />
-        <input type="password" id="jqPassword" placeholder="Password" required />
-        <button type="submit">Login via jQuery</button>
-      </form>
-      <p id="jqMessage"></p>
-    </div>
-
-    <!-- 5) Register Form -->
-    <div id="register" class="tab-content">
-      <h2>Register</h2>
-      <form id="registerForm">
-        <input type="email" id="registerEmail" placeholder="Email" required />
-        <input type="password" id="registerPassword" placeholder="Password" required />
-        <button type="submit">Register</button>
-      </form>
-      <p id="registerMessage"></p>
-    </div>
-
-    <!-- 6) Users List -->
-    <div id="users" class="tab-content">
-      <h2>Users List</h2>
-      <button id="refreshUsers" class="action-btn">Refresh Users</button>
-      <ul id="usersList">
-        <li>example@user.com</li>
-        <li>test@domain.com</li>
-      </ul>
-    </div>
-
   </div>
 
-      <!-- Floating Chat Icon -->
-      <div id="chatbot-icon">💬</div>
-
-      <!-- Chatbot Container -->
-      <div id="chatbot-container" class="hidden">
-        <div id="chatbot-header">
-          <span>Chatbot</span>
-          <button id="close-btn">&times;</button>
-        </div>
-        <div id="key-panel">
-          <label for="openai-key" style="color:#bbb;font-size:12px">OpenAI API key (stored locally)</label>
-          <div class="controls">
-            <input id="openai-key" type="password" placeholder="sk-…" />
-            <button id="save-key">Save</button>
-            <button id="clear-key">Clear</button>
-          </div>
-          <div id="key-status" style="display:none;color:#8bc34a;font-size:12px;margin-top:6px">Saved</div>
-        </div>            
-        <div id="chatbot-body">
-          <div id="chatbot-messages"></div>
-        </div>
-        <div id="chatbot-input-container">
-          <input type="text" id="chatbot-input" placeholder="Type a message..." />
-          <button id="send-btn">Send</button>
-        </div>
-      </div>
-
-  <!-- jQuery for the jQuery-login tab -->
+  <!-- jQuery for jQuery-login tab -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <!-- Your existing script.js -->
+  <!-- App logic -->
   <script src="script.js"></script>
 </body>
 </html>

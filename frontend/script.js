@@ -1,253 +1,278 @@
-// script.js
+// ========= Config =========
+const apiUrl = "https://www.julian-labs.com/api"; // backend URL
+const WS_URL = "wss://websockets-zuplo-gtw-main-92f335b.d2.zuplo.dev/ws-echo";
 
-const apiUrl = 'https://www.julian-labs.com/api';  // backend URL
+// ========= Simple Router (show/hide sections) =========
+function showSection(id) {
+  document.querySelectorAll("section").forEach(s => s.classList.add("hidden"));
+  const target = document.getElementById(id);
+  if (target) target.classList.remove("hidden");
 
-/**
- * Tab-switcher: show only the requested panel,
- * activate its button, and auto-refresh users if needed.
- */
-function showTab(tabId, btn) {
-  document.querySelectorAll('.tab-content').forEach(p => p.style.display = 'none');
-  document.querySelectorAll('.tab').forEach(b => b.classList.remove('active'));
-
-  const panel = document.getElementById(tabId);
-  if (panel) panel.style.display = 'block';
-  if (btn) btn.classList.add('active');
-
-  if (tabId === 'users') fetchUsers();
+  if (id === "users") fetchUsers();
 }
+window.showSection = showSection;
 
-// —————————————————————————————————————————
-// 1) AJAX (Fetch API) Login
-// —————————————————————————————————————————
-document.getElementById('loginForm')
-  .addEventListener('submit', async e => {
-    e.preventDefault();
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const msg = document.getElementById('loginMessage');
+// Default view
+document.addEventListener("DOMContentLoaded", () => {
+  showSection("menu");
+  // Show key status if one exists
+  if (cbGetKey()) cbShowKeyStatus("A key is saved (session)", 1800);
+});
 
-    try {
-      const res = await fetch(`${apiUrl}/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const json = await res.json();
-      if (res.ok) {
-        msg.textContent = `✅ Fetch login success! Token: ${json.token}`;
-        msg.style.color = 'green';
-      } else {
-        msg.textContent = json.message || 'Fetch login failed';
-        msg.style.color = 'red';
-      }
-    } catch {
-      msg.textContent = 'Network error';
-      msg.style.color = 'red';
-    }
-  });
-
-// —————————————————————————————————————————
-// 2) XHR Login
-// —————————————————————————————————————————
-document.getElementById('xhrLoginForm')
-  .addEventListener('submit', e => {
-    e.preventDefault();
-    const email = document.getElementById('xhrEmail').value;
-    const password = document.getElementById('xhrPassword').value;
-    const msg = document.getElementById('xhrMessage');
-
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', `${apiUrl}/auth/login`);
-    xhr.setRequestHeader('Content-Type', 'application/json');
-    xhr.onreadystatechange = () => {
-      if (xhr.readyState === 4) {
-        const json = JSON.parse(xhr.responseText || '{}');
-        if (xhr.status >= 200 && xhr.status < 300) {
-          msg.textContent = `✅ XHR login success! Token: ${json.token}`;
-          msg.style.color = 'green';
-        } else {
-          msg.textContent = json.message || 'XHR login failed';
-          msg.style.color = 'red';
-        }
-      }
-    };
-    xhr.send(JSON.stringify({ email, password }));
-  });
-
-// —————————————————————————————————————————
-// 3) jQuery Login
-// —————————————————————————————————————————
-$('#jqueryLoginForm').on('submit', function(e) {
+// ========= AJAX (Fetch) Login =========
+document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const email = $('#jqEmail').val();
-  const password = $('#jqPassword').val();
-  const msg    = $('#jqMessage');
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  const msg = document.getElementById("loginMessage");
+
+  try {
+    const res = await fetch(`${apiUrl}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const json = await res.json();
+    if (res.ok) {
+      msg.textContent = `✅ Fetch login success! Token: ${json.token}`;
+      msg.className = "mt-2 text-sm text-green-600";
+    } else {
+      msg.textContent = json.message || "Fetch login failed";
+      msg.className = "mt-2 text-sm text-red-600";
+    }
+  } catch {
+    msg.textContent = "Network error";
+    msg.className = "mt-2 text-sm text-red-600";
+  }
+});
+
+// ========= XHR Login =========
+document.getElementById("xhrLoginForm")?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const email = document.getElementById("xhrEmail").value;
+  const password = document.getElementById("xhrPassword").value;
+  const msg = document.getElementById("xhrMessage");
+
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", `${apiUrl}/auth/login`);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.onreadystatechange = () => {
+    if (xhr.readyState === 4) {
+      const json = JSON.parse(xhr.responseText || "{}");
+      if (xhr.status >= 200 && xhr.status < 300) {
+        msg.textContent = `✅ XHR login success! Token: ${json.token}`;
+        msg.className = "mt-2 text-sm text-green-600";
+      } else {
+        msg.textContent = json.message || "XHR login failed";
+        msg.className = "mt-2 text-sm text-red-600";
+      }
+    }
+  };
+  xhr.send(JSON.stringify({ email, password }));
+});
+
+// ========= jQuery Login =========
+$("#jqueryLoginForm")?.on("submit", function (e) {
+  e.preventDefault();
+  const email = $("#jqEmail").val();
+  const password = $("#jqPassword").val();
+  const msg = $("#jqMessage");
 
   $.ajax({
     url: `${apiUrl}/auth/login`,
-    method: 'POST',
-    contentType: 'application/json',
+    method: "POST",
+    contentType: "application/json",
     data: JSON.stringify({ email, password }),
     success(data) {
       msg.text(`✅ jQuery login success! Token: ${data.token}`)
-         .css('color', 'green');
+         .attr("class", "mt-2 text-sm text-green-600");
     },
     error(xhr) {
       const json = xhr.responseJSON || {};
-      msg.text(json.message || 'jQuery login failed')
-         .css('color', 'red');
-    }
+      msg.text(json.message || "jQuery login failed")
+         .attr("class", "mt-2 text-sm text-red-600");
+    },
   });
 });
 
-// —————————————————————————————————————————
-// Register form (unchanged)
-// —————————————————————————————————————————
-document.getElementById('registerForm')
-  .addEventListener('submit', async e => {
-    e.preventDefault();
-    const email = document.getElementById('registerEmail').value;
-    const password = document.getElementById('registerPassword').value;
-    const msg = document.getElementById('registerMessage');
+// ========= Register =========
+document.getElementById("registerForm")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const email = document.getElementById("registerEmail").value;
+  const password = document.getElementById("registerPassword").value;
+  const msg = document.getElementById("registerMessage");
 
-    try {
-      const res = await fetch(`${apiUrl}/auth/register`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      const json = await res.json();
-      if (res.ok) {
-        msg.textContent = '✅ Registration successful!';
-        msg.style.color = 'green';
-      } else {
-        msg.textContent = json.message || 'Registration failed';
-        msg.style.color = 'red';
-      }
-    } catch {
-      msg.textContent = 'Network error';
-      msg.style.color = 'red';
+  try {
+    const res = await fetch(`${apiUrl}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const json = await res.json();
+    if (res.ok) {
+      msg.textContent = "✅ Registration successful!";
+      msg.className = "mt-2 text-sm text-green-600";
+    } else {
+      msg.textContent = json.message || "Registration failed";
+      msg.className = "mt-2 text-sm text-red-600";
     }
-  });
+  } catch {
+    msg.textContent = "Network error";
+    msg.className = "mt-2 text-sm text-red-600";
+  }
+});
 
-// —————————————————————————————————————————
-// Fetch & render Users
-// —————————————————————————————————————————
+// ========= Users =========
 async function fetchUsers() {
-  const ul = document.getElementById('usersList');
-  ul.innerHTML = '<li>Loading…</li>';
+  const ul = document.getElementById("usersList");
+  if (!ul) return;
+  ul.innerHTML = `<li class="px-3 py-2 bg-gray-100 rounded-lg text-gray-800">Loading…</li>`;
   try {
     const res = await fetch(`${apiUrl}/auth/users`);
     const list = await res.json();
-    ul.innerHTML = '';
-    list.forEach(u => {
-      const li = document.createElement('li');
-      li.textContent = u.email;
+    ul.innerHTML = "";
+    (Array.isArray(list) ? list : []).forEach((u) => {
+      const li = document.createElement("li");
+      li.className = "px-3 py-2 bg-gray-100 rounded-lg text-gray-800";
+      li.textContent = u.email || "(no email)";
       ul.appendChild(li);
     });
   } catch {
-    ul.innerHTML = '<li>Error loading users</li>';
+    ul.innerHTML = `<li class="px-3 py-2 bg-gray-100 rounded-lg text-red-600">Error loading users</li>`;
+  }
+}
+document.getElementById("refreshUsers")?.addEventListener("click", fetchUsers);
+
+// ========= WebSocket Chat =========
+let wsSocket = null;
+const wsStatusEl = document.getElementById("ws-status");
+const wsMessagesEl = document.getElementById("ws-messages");
+const wsForm = document.getElementById("ws-form");
+const wsInput = document.getElementById("ws-input");
+
+document.getElementById("ws-connect")?.addEventListener("click", wsConnect);
+document.getElementById("ws-disconnect")?.addEventListener("click", wsDisconnect);
+
+function wsSetStatus(connected) {
+  if (!wsStatusEl) return;
+  wsStatusEl.textContent = connected ? "🟢 Connected" : "🔴 Disconnected";
+  wsStatusEl.className = connected ? "text-green-600" : "text-red-600";
+}
+
+function wsAppendMessage(text, type = "in") {
+  if (!wsMessagesEl) return;
+  const bubble = document.createElement("div");
+  bubble.className =
+    type === "out"
+      ? "ml-auto bg-blue-600 text-white px-4 py-2 rounded-2xl max-w-[80%]"
+      : "mr-auto bg-gray-200 text-gray-800 px-4 py-2 rounded-2xl max-w-[80%]";
+  bubble.textContent = text;
+  wsMessagesEl.appendChild(bubble);
+  wsMessagesEl.scrollTop = wsMessagesEl.scrollHeight;
+}
+
+function wsConnect() {
+  if (wsSocket && wsSocket.readyState === WebSocket.OPEN) return;
+  wsSocket = new WebSocket(WS_URL);
+
+  wsSocket.addEventListener("open", () => wsSetStatus(true));
+  wsSocket.addEventListener("message", (e) => wsAppendMessage(e.data, "in"));
+  wsSocket.addEventListener("close", () => wsSetStatus(false));
+  wsSocket.addEventListener("error", (err) => {
+    console.error("WS error", err);
+    try { wsSocket.close(); } catch {}
+  });
+}
+
+function wsDisconnect() {
+  if (wsSocket) {
+    wsSocket.close(1000, "Manual disconnect");
+    wsSocket = null;
+    wsSetStatus(false);
   }
 }
 
-const KEY_STORAGE = 'openai_api_key';        // change if you like
+wsForm?.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const msg = wsInput.value.trim();
+  if (msg && wsSocket && wsSocket.readyState === WebSocket.OPEN) {
+    wsSocket.send(msg);
+    wsAppendMessage(msg, "out");
+    wsInput.value = "";
+  }
+});
 
-function getApiKey() {
-  return sessionStorage.getItem(KEY_STORAGE) || "";   // ephemeral (clears on tab close)
+// ========= Chatbot (BYOK) =========
+const KEY_STORAGE = "openai_api_key_session"; // session-scoped
+
+function cbGetKey() {
+  return sessionStorage.getItem(KEY_STORAGE) || "";
 }
-function saveApiKey(k) {
+function cbSaveKey(k) {
   const v = (k || "").trim();
-  if (!v) return clearApiKey();
+  if (!v) return cbClearKey();
   sessionStorage.setItem(KEY_STORAGE, v);
 }
-function clearApiKey() {
+function cbClearKey() {
   sessionStorage.removeItem(KEY_STORAGE);
 }
-
-const keyInput  = document.getElementById('openai-key');
-const keyStatus = document.getElementById('key-status');
-
-document.getElementById('save-key').addEventListener('click', () => {
-  saveApiKey(keyInput.value);
-  keyInput.value = '';
-  keyStatus.style.display = 'inline';
-  keyStatus.textContent = 'Saved to this browser (session)';
-  setTimeout(() => (keyStatus.style.display = 'none'), 2000);
-});
-
-document.getElementById('clear-key').addEventListener('click', () => {
-  clearApiKey();
-  keyStatus.style.display = 'inline';
-  keyStatus.textContent = 'Key cleared';
-  setTimeout(() => (keyStatus.style.display = 'none'), 1500);
-});
-
-if (getApiKey()) {
-  keyStatus.style.display = 'inline';
-  keyStatus.textContent = 'A key is saved (session)';
-  setTimeout(() => (keyStatus.style.display = 'none'), 2000);
+function cbShowKeyStatus(text = "Saved", ms = 1500) {
+  const el = document.getElementById("cb-key-status");
+  if (!el) return;
+  el.textContent = text;
+  el.classList.remove("hidden");
+  setTimeout(() => el.classList.add("hidden"), ms);
 }
 
+const cbKeyInput   = document.getElementById("cb-key");
+const cbSaveBtn    = document.getElementById("cb-save-key");
+const cbClearBtn   = document.getElementById("cb-clear-key");
+const cbSendBtn    = document.getElementById("cb-send-btn");
+const cbInput      = document.getElementById("cb-input");
+const cbMessagesEl = document.getElementById("cb-messages");
 
+cbSaveBtn?.addEventListener("click", () => {
+  cbSaveKey(cbKeyInput?.value || "");
+  if (cbKeyInput) cbKeyInput.value = "";
+  cbShowKeyStatus("Saved to this browser (session)", 1800);
+});
 
-document.addEventListener("DOMContentLoaded", function () {
-  const chatbotContainer = document.getElementById("chatbot-container");
-  const closeBtn = document.getElementById("close-btn");
-  const sendBtn = document.getElementById("send-btn");
-  const chatbotInput = document.getElementById("chatbot-input");
-  const chatbotMessages = document.getElementById("chatbot-messages");
+cbClearBtn?.addEventListener("click", () => {
+  cbClearKey();
+  cbShowKeyStatus("Key cleared", 1200);
+});
 
-  const chatbotIcon = document.getElementById("chatbot-icon");
-  const closeButton = document.getElementById("close-btn");
+function cbAppendMessage(sender, text) {
+  if (!cbMessagesEl) return;
+  const div = document.createElement("div");
+  const base = "px-4 py-2 rounded-2xl max-w-[80%]";
+  if (sender === "user") {
+    div.className = `ml-auto bg-blue-600 text-white ${base}`;
+  } else {
+    div.className = `mr-auto bg-gray-200 text-gray-800 ${base}`;
+  }
+  div.textContent = text;
+  cbMessagesEl.appendChild(div);
+  cbMessagesEl.scrollTop = cbMessagesEl.scrollHeight;
+}
 
-  // Toggle chatbot visibility when clicking the icon
-  // Show chatbot when clicking the icon
-  chatbotIcon.addEventListener("click", function () {
-    chatbotContainer.classList.remove("hidden");
-    chatbotIcon.style.display = "none"; // Hide chat icon
-  });
-
-  // Also toggle when clicking the close button
-  closeButton.addEventListener("click", function () {
-    chatbotContainer.classList.add("hidden");
-    chatbotIcon.style.display = "flex"; // Show chat icon again
-  });
-
-  sendBtn.addEventListener("click", sendMessage);
-  chatbotInput.addEventListener("keypress", function (e) {
-    if (e.key === "Enter") {
-      sendMessage();
-    }
-  });
-
-  function sendMessage() {
-    const userMessage = chatbotInput.value.trim();
-    if (userMessage) {
-      appendMessage("user", userMessage);
-      chatbotInput.value = "";
-      getBotResponse(userMessage);
-    }
+async function cbSendMessage() {
+  const userMessage = (cbInput?.value || "").trim();
+  if (!userMessage) return;
+  const apiKey = cbGetKey();
+  if (!apiKey) {
+    cbAppendMessage("bot", "⚠️ Add your OpenAI API key above to chat.");
+    return;
   }
 
-  function appendMessage(sender, message) {
-    const messageElement = document.createElement("div");
-    messageElement.classList.add("message", sender);
-    messageElement.textContent = message;
-    chatbotMessages.appendChild(messageElement);
-    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
-  }
-  async function getBotResponse(userMessage) {
-    const apiKey = getApiKey();
-    if (!apiKey) {
-      appendMessage("bot", "⚠️ Add your OpenAI API key above to chat.");
-      return;
-    }
-  
+  cbAppendMessage("user", userMessage);
+  if (cbInput) cbInput.value = "";
+
+  try {
     const resp = await fetch(`${apiUrl}/chat`, {
       method: "POST",
       headers: {
-        "Authorization": `Bearer ${apiKey}`,     // ← BYOK
+        "Authorization": `Bearer ${apiKey}`, // BYOK
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
@@ -258,14 +283,14 @@ document.addEventListener("DOMContentLoaded", function () {
         text: { format: { type: "text" }, verbosity: "low" }
       }),
     });
-  
+
     if (!resp.ok) {
       const err = await resp.text();
-      appendMessage("bot", `Error: ${resp.status} ${resp.statusText}`);
+      cbAppendMessage("bot", `Error: ${resp.status} ${resp.statusText}`);
       console.error(err);
       return;
     }
-  
+
     const data = await resp.json();
     const botMessage =
       data.output_text ||
@@ -273,20 +298,18 @@ document.addEventListener("DOMContentLoaded", function () {
         .flatMap(o => o.content ?? [])
         .map(c => c.text || "")
         .join("") || "(no content)";
-  
-    appendMessage("bot", botMessage);
+
+    cbAppendMessage("bot", botMessage);
+  } catch (e) {
+    console.error(e);
+    cbAppendMessage("bot", "Network error");
   }
-  
-});
+}
 
-
-// Manual “Refresh Users”
-document.getElementById('refreshUsers')
-  .addEventListener('click', fetchUsers);
-
-// —————————————————————————————————————————
-// Init on page load
-// —————————————————————————————————————————
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelector('.tab').click();
+cbSendBtn?.addEventListener("click", cbSendMessage);
+cbInput?.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") {
+    e.preventDefault();
+    cbSendMessage();
+  }
 });
