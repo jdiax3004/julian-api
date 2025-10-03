@@ -1,6 +1,6 @@
 // ========= Config =========
 const apiUrl = "https://www.julian-labs.com/api"; // backend URL
-const WS_URL = "wss://websockets-zuplo-gtw-main-92f335b.d2.zuplo.dev/ws-echo";
+const WS_URL = "wss://www.julian-labs.com/ws/echo";
 
 // ========= Simple Router (show/hide sections) =========
 function showSection(id) {
