@@ -1,6 +1,34 @@
 /* ——————————————————————————————————————————
-   GLOBAL & APP STYLES (modernized)
+   CSS Variables & Global Styles
 —————————————————————————————————————————— */
+:root {
+  /* Colors */
+  --primary-color: #2563eb;
+  --primary-dark: #1e4fd8;
+  --success-color: #16a34a;
+  --success-dark: #15803d;
+  --background-light: #f3f4f6;
+  --background-dark: #1f1f1f;
+  --text-primary: #333;
+  --text-light: #fff;
+  --border-color: #444;
+  --input-bg: #333;
+  
+  /* Spacing */
+  --spacing-xs: 6px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  
+  /* Border Radius */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-full: 50%;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -82,23 +110,29 @@ input, button {
   font-size: 0.95rem;
 }
 
-button {
-  background: #2563eb;
-  color: white;
+.btn {
+  background: var(--primary-color);
+  color: var(--text-light);
   font-weight: 500;
   cursor: pointer;
-  transition: background 0.2s;
+  padding: var(--spacing-md) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: 0.95rem;
+  transition: background 0.2s, transform 0.2s;
 }
 
-button:hover {
-  background: #1e4fd8;
+.btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
 }
 
-.action-btn {
-  background: #16a34a;
+.btn--success {
+  background: var(--success-color);
 }
-.action-btn:hover {
-  background: #15803d;
+
+.btn--success:hover {
+  background: var(--success-dark);
 }
 
 ul {
@@ -150,16 +184,24 @@ li {
 #chatbot-container {
   position: fixed;
   bottom: 90px;
-  right: 20px;
+  right: var(--spacing-lg);
   width: 350px;
   height: 460px;
-  background: #1f1f1f;
-  border-radius: 14px;
+  background: var(--background-dark);
+  border-radius: var(--radius-xl);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   box-shadow: 0 4px 20px rgba(0,0,0,0.4);
   z-index: 1000;
+}
+
+@media (max-width: 480px) {
+  #chatbot-container {
+    width: calc(100vw - var(--spacing-lg) * 2);
+    height: 70vh;
+    bottom: 80px;
+  }
 }
 
 .hidden {
@@ -257,24 +299,38 @@ li {
 }
 
 #chatbot-messages .message {
-  margin-bottom: 12px;
-  padding: 10px;
-  border-radius: 10px;
+  margin-bottom: var(--spacing-md);
+  padding: var(--spacing-md);
+  border-radius: var(--radius-lg);
   max-width: 80%;
   font-size: 0.9rem;
   line-height: 1.4;
+  animation: messageAppear 0.3s ease-out;
 }
 
 .message.user {
-  background: #2563eb;
-  color: white;
+  background: var(--primary-color);
+  color: var(--text-light);
   align-self: flex-end;
+  border-bottom-right-radius: var(--radius-sm);
 }
 
 .message.bot {
-  background: #333;
-  color: white;
+  background: var(--input-bg);
+  color: var(--text-light);
   align-self: flex-start;
+  border-bottom-left-radius: var(--radius-sm);
+}
+
+@keyframes messageAppear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* —————————————————————————————
@@ -314,26 +370,30 @@ li {
   background: #1e4fd8;
 }
 
-/* === Chat: make inputs bigger than buttons and use full row width === */
-
-/* Key row: input | Save | Clear  */
-#key-panel .controls {
+/* Input Styles */
+.input-group {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto auto; /* input grows, buttons fit */
-  gap: 8px;
+  grid-template-columns: minmax(0, 1fr) auto auto;
+  gap: var(--spacing-sm);
   align-items: center;
   width: 100%;
 }
 
-#key-panel .controls #openai-key {
-  min-width: 0;                 /* allow shrinking inside grid */
-  width: 100%;                  /* take full column */
-  padding: 12px 14px;           /* bigger & readable */
+.input {
+  min-width: 0;
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
   font-size: 0.95rem;
-  background: #333;
-  color: #fff;
-  border: 1px solid #444;
-  border-radius: 8px;
+  background: var(--input-bg);
+  color: var(--text-light);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--primary-color);
 }
 #key-panel .controls #openai-key::placeholder { color: #aaa; }
 
