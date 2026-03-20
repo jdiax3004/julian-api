@@ -95,6 +95,92 @@ $("#jqueryLoginForm")?.on("submit", function (e) {
   });
 });
 
+// ========= Flex Endpoint =========
+
+// Configure response
+document.getElementById("flexConfigureBtn")?.addEventListener("click", async () => {
+  const textarea = document.getElementById("flexPayload");
+  const msg = document.getElementById("flexConfigureMsg");
+  const raw = (textarea?.value || "").trim();
+
+  if (!raw) {
+    msg.textContent = "Paste a JSON payload first";
+    msg.className = "mt-2 text-sm text-red-600";
+    return;
+  }
+
+  let payload;
+  try {
+    payload = JSON.parse(raw);
+  } catch {
+    msg.textContent = "Invalid JSON — please fix and try again";
+    msg.className = "mt-2 text-sm text-red-600";
+    return;
+  }
+
+  try {
+    const res = await fetch(`${apiUrl}/auth/flex/configure`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const json = await res.json();
+    if (res.ok) {
+      msg.textContent = "✅ Response configured!";
+      msg.className = "mt-2 text-sm text-green-600";
+    } else {
+      msg.textContent = json.error || "Configuration failed";
+      msg.className = "mt-2 text-sm text-red-600";
+    }
+  } catch {
+    msg.textContent = "Network error";
+    msg.className = "mt-2 text-sm text-red-600";
+  }
+});
+
+// Reset configured response
+document.getElementById("flexResetBtn")?.addEventListener("click", async () => {
+  const msg = document.getElementById("flexConfigureMsg");
+  const textarea = document.getElementById("flexPayload");
+  try {
+    const res = await fetch(`${apiUrl}/auth/flex/configure`, { method: "DELETE" });
+    if (res.ok) {
+      if (textarea) textarea.value = "";
+      msg.textContent = "🗑️ Response reset to default";
+      msg.className = "mt-2 text-sm text-green-600";
+    } else {
+      msg.textContent = "Reset failed";
+      msg.className = "mt-2 text-sm text-red-600";
+    }
+  } catch {
+    msg.textContent = "Network error";
+    msg.className = "mt-2 text-sm text-red-600";
+  }
+});
+
+// Test login against /flex
+document.getElementById("flexLoginForm")?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const username = document.getElementById("flexUsername").value;
+  const password = document.getElementById("flexPassword").value;
+  const responseBox = document.getElementById("flexResponseBox");
+  const responsePre = document.getElementById("flexResponse");
+
+  try {
+    const res = await fetch(`${apiUrl}/auth/flex`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, password }),
+    });
+    const json = await res.json();
+    responsePre.textContent = JSON.stringify(json, null, 2);
+    responseBox.classList.remove("hidden");
+  } catch {
+    responsePre.textContent = "Network error";
+    responseBox.classList.remove("hidden");
+  }
+});
+
 // ========= Register =========
 document.getElementById("registerForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();

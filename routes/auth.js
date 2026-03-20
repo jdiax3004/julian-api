@@ -42,6 +42,40 @@ router.post('/login', async (req, res) => {
   }
 });
 
+// ========= Flex: configurable echo endpoint =========
+let flexResponsePayload = { message: 'No response configured yet' };
+
+// Configure the response that /flex will return
+router.post('/flex/configure', (req, res) => {
+  try {
+    flexResponsePayload = req.body;
+    res.json({ message: 'Response configured successfully', configured: flexResponsePayload });
+  } catch (error) {
+    res.status(500).json({ error: 'Error configuring response' });
+  }
+});
+
+// Login-style endpoint that always replies with the configured payload
+router.post('/flex', (req, res) => {
+  try {
+    // req.body contains { username, password } but we ignore auth logic
+    res.json(flexResponsePayload);
+  } catch (error) {
+    res.status(500).json({ error: 'Error processing flex request' });
+  }
+});
+
+// Get the currently configured response (for display)
+router.get('/flex/configure', (req, res) => {
+  res.json(flexResponsePayload);
+});
+
+// Reset the configured response back to default
+router.delete('/flex/configure', (req, res) => {
+  flexResponsePayload = { message: 'No response configured yet' };
+  res.json({ message: 'Response reset to default', configured: flexResponsePayload });
+});
+
 // List all users
 router.get('/users', async (req, res) => {
   try {
