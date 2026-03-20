@@ -42,7 +42,7 @@ jobs:
             git reset --hard origin/main
 
             # 4) Reinstall deps if package.json changed
-            npm ci --production
+            npm ci --omit=dev --legacy-peer-deps
 
             # 5) Reload your PM2 process so it picks up the new code
             pm2 reload api || pm2 restart api
