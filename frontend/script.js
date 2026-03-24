@@ -100,8 +100,10 @@ $("#jqueryLoginForm")?.on("submit", function (e) {
 // Configure response
 document.getElementById("flexConfigureBtn")?.addEventListener("click", async () => {
   const textarea = document.getElementById("flexPayload");
+  const statusInput = document.getElementById("flexStatusCode");
   const msg = document.getElementById("flexConfigureMsg");
   const raw = (textarea?.value || "").trim();
+  const statusCode = parseInt(statusInput?.value, 10) || 200;
 
   if (!raw) {
     msg.textContent = "Paste a JSON payload first";
@@ -122,11 +124,11 @@ document.getElementById("flexConfigureBtn")?.addEventListener("click", async () 
     const res = await fetch(`${apiUrl}/auth/flex/configure`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+      body: JSON.stringify({ statusCode, body: payload }),
     });
     const json = await res.json();
     if (res.ok) {
-      msg.textContent = "✅ Response configured!";
+      msg.textContent = `✅ Configured! Status: ${statusCode}`;
       msg.className = "mt-2 text-sm text-green-600";
     } else {
       msg.textContent = json.error || "Configuration failed";

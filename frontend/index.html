@@ -259,9 +259,17 @@
         <!-- Step 1: Configure Response -->
         <div class="mt-4 p-4 bg-gray-50 border rounded-xl">
           <h3 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2">Step 1 — Configure API Response</h3>
-          <p class="text-xs text-gray-500 mb-3">Paste the JSON payload below. The <code class="bg-gray-200 px-1 rounded">/auth/flex</code> endpoint will reply with this exact body.</p>
+          <p class="text-xs text-gray-500 mb-3">Set the status code and JSON body. The <code class="bg-gray-200 px-1 rounded">/auth/flex</code> endpoint will reply with these.</p>
+          <div class="flex gap-2 items-end">
+            <div class="w-28">
+              <label class="text-xs font-semibold text-gray-500 uppercase">Status Code</label>
+              <input type="number" id="flexStatusCode" value="200" min="100" max="599"
+                     class="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand" />
+            </div>
+            <div class="flex-1 text-xs text-gray-400 pb-2" id="flexStatusHint">200 = OK</div>
+          </div>
           <textarea id="flexPayload" rows="4" placeholder='{"token": "abc123", "user": "julian"}'
-                    class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand"></textarea>
+                    class="mt-2 w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-brand"></textarea>
           <div class="mt-2 flex gap-2">
             <button id="flexConfigureBtn" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
               Save Response

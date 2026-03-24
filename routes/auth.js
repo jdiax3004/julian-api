@@ -44,12 +44,15 @@ router.post('/login', async (req, res) => {
 
 // ========= Flex: configurable echo endpoint =========
 let flexResponsePayload = { message: 'No response configured yet' };
+let flexResponseStatus = 200;
 
 // Configure the response that /flex will return
 router.post('/flex/configure', (req, res) => {
   try {
-    flexResponsePayload = req.body;
-    res.json({ message: 'Response configured successfully', configured: flexResponsePayload });
+    const { statusCode, body } = req.body;
+    if (body !== undefined) flexResponsePayload = body;
+    if (statusCode !== undefined) flexResponseStatus = parseInt(statusCode, 10) || 200;
+    res.json({ message: 'Response configured successfully', configured: { statusCode: flexResponseStatus, body: flexResponsePayload } });
   } catch (error) {
     res.status(500).json({ error: 'Error configuring response' });
   }
@@ -58,7 +61,7 @@ router.post('/flex/configure', (req, res) => {
 // Flex endpoint that always replies with the configured payload
 router.post('/flex', (req, res) => {
   try {
-    res.json(flexResponsePayload);
+    res.status(flexResponseStatus).json(flexResponsePayload);
   } catch (error) {
     res.status(500).json({ error: 'Error processing flex request' });
   }
@@ -66,13 +69,14 @@ router.post('/flex', (req, res) => {
 
 // Get the currently configured response (for display)
 router.get('/flex/configure', (req, res) => {
-  res.json(flexResponsePayload);
+  res.json({ statusCode: flexResponseStatus, body: flexResponsePayload });
 });
 
 // Reset the configured response back to default
 router.delete('/flex/configure', (req, res) => {
   flexResponsePayload = { message: 'No response configured yet' };
-  res.json({ message: 'Response reset to default', configured: flexResponsePayload });
+  flexResponseStatus = 200;
+  res.json({ message: 'Response reset to default', configured: { statusCode: flexResponseStatus, body: flexResponsePayload } });
 });
 
 // List all users
