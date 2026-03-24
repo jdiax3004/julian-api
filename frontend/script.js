@@ -158,19 +158,29 @@ document.getElementById("flexResetBtn")?.addEventListener("click", async () => {
   }
 });
 
-// Test login against /flex
+// Test request against /flex
 document.getElementById("flexLoginForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
-  const username = document.getElementById("flexUsername").value;
-  const password = document.getElementById("flexPassword").value;
+  const customBody = (document.getElementById("flexRequestBody")?.value || "").trim();
   const responseBox = document.getElementById("flexResponseBox");
   const responsePre = document.getElementById("flexResponse");
+
+  let body = {};
+  if (customBody) {
+    try {
+      body = JSON.parse(customBody);
+    } catch {
+      responsePre.textContent = "Invalid JSON in request body";
+      responseBox.classList.remove("hidden");
+      return;
+    }
+  }
 
   try {
     const res = await fetch(`${apiUrl}/auth/flex`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, password }),
+      body: JSON.stringify(body),
     });
     const json = await res.json();
     responsePre.textContent = JSON.stringify(json, null, 2);

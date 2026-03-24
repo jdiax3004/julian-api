@@ -55,10 +55,9 @@ router.post('/flex/configure', (req, res) => {
   }
 });
 
-// Login-style endpoint that always replies with the configured payload
+// Flex endpoint that always replies with the configured payload
 router.post('/flex', (req, res) => {
   try {
-    // req.body contains { username, password } but we ignore auth logic
     res.json(flexResponsePayload);
   } catch (error) {
     res.status(500).json({ error: 'Error processing flex request' });
