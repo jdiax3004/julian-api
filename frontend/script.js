@@ -97,6 +97,48 @@ $("#jqueryLoginForm")?.on("submit", function (e) {
 
 // ========= Flex Endpoint =========
 
+// JSON utility buttons
+function jsonBeautify(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  try {
+    const parsed = JSON.parse(el.value);
+    el.value = JSON.stringify(parsed, null, 2);
+    el.style.borderColor = "#16a34a";
+    setTimeout(() => el.style.borderColor = "", 1000);
+  } catch {
+    el.style.borderColor = "#dc2626";
+    setTimeout(() => el.style.borderColor = "", 1000);
+  }
+}
+
+function jsonMinify(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  try {
+    const parsed = JSON.parse(el.value);
+    el.value = JSON.stringify(parsed);
+    el.style.borderColor = "#16a34a";
+    setTimeout(() => el.style.borderColor = "", 1000);
+  } catch {
+    el.style.borderColor = "#dc2626";
+    setTimeout(() => el.style.borderColor = "", 1000);
+  }
+}
+
+function jsonValidate(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  try {
+    JSON.parse(el.value);
+    el.style.borderColor = "#16a34a";
+    setTimeout(() => el.style.borderColor = "", 2000);
+  } catch {
+    el.style.borderColor = "#dc2626";
+    setTimeout(() => el.style.borderColor = "", 2000);
+  }
+}
+
 // Configure response
 document.getElementById("flexConfigureBtn")?.addEventListener("click", async () => {
   const textarea = document.getElementById("flexPayload");
