@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Prolexic: Comprehensive DDoS Protection</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Instrument+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            :root {
+                /* Akamai March 2026 Brand (v1.1) */
+                --navy: #002f6c;
+                --blue: #00a4eb;
+                --orange: #ff8b00;
+                --electric: #0050ff;
+                --teal: #00cd63;
+                --lavender: #7a7cff;
+                --white: #ffffff;
+
+                /* Surfaces */
+                --page: #f3f4f7;
+                --surface: #ffffff;
+                --surface-subtle: #f7f8fa;
+                --border: #d8dce3;
+                --border-soft: #e6e9ee;
+                --text: #0b1a33;
+                --text-muted: #4a5568;
+                --text-subtle: #6b7484;
+
+                /* Severity tints */
+                --critical-tint: #ffe9e4;
+                --critical-ink: #8a1a00;
+                --critical-line: #cc3300;
+
+                --high-tint: #fff2e0;
+                --high-ink: #6b3a00;
+                --high-line: #ff8b00;
+
+                --medium-tint: #fff8e0;
+                --medium-ink: #6b5a00;
+                --medium-line: #b87a00;
+
+                --info-tint: #e6f4fe;
+                --info-ink: #003c80;
+                --info-line: #00a4eb;
+
+                --success-tint: #e1f7eb;
+                --success-ink: #006b33;
+                --success-line: #00cd63;
+
+                --r: 2px;
+                --font: "Instrument Sans", Arial, sans-serif;
+                --mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
+            }
+
+            * { box-sizing: border-box; margin: 0; padding: 0; }
+            html, body { margin: 0; padding: 0; }
+            body {
+                font-family: var(--font);
+                background: var(--page);
+                color: var(--text);
+                font-size: 15px;
+                line-height: 1.55;
+                -webkit-font-smoothing: antialiased;
+                padding: 32px 20px 60px;
+            }
+
+            .document {
+                max-width: 1040px;
+                margin: 0 auto;
+                background: var(--surface);
+                border: 1px solid var(--border);
+                border-radius: var(--r);
+                overflow: hidden;
+                box-shadow: 0 1px 2px rgba(0, 47, 108, 0.04), 0 8px 24px rgba(0, 47, 108, 0.08);
+            }
+
+            .brand-strip { display: flex; height: 4px; }
+            .brand-strip > span { flex: 1; }
+            .brand-strip .s1 { background: var(--navy); }
+            .brand-strip .s2 { background: var(--blue); }
+            .brand-strip .s3 { background: var(--electric); }
+            .brand-strip .s4 { background: var(--teal); }
+            .brand-strip .s5 { background: var(--lavender); }
+            .brand-strip .s6 { background: var(--orange); }
+
+            .hero { background: var(--navy); color: var(--white); padding: 40px 48px 36px; position: relative; }
+            .hero-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; gap: 16px; flex-wrap: wrap; }
+            .wordmark { font-weight: 700; font-size: 13px; letter-spacing: 0.28em; display: inline-flex; align-items: center; gap: 10px; }
+            .wordmark::before { content: ""; width: 10px; height: 10px; background: var(--orange); display: inline-block; }
+            .doc-ref { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.72); font-weight: 500; }
+            .hero h1 { font-weight: 700; font-size: 32px; letter-spacing: -0.01em; line-height: 1.15; margin-bottom: 8px; }
+            .hero-subtitle { font-size: 13px; color: rgba(255, 255, 255, 0.78); font-weight: 500; letter-spacing: 0.03em; margin-bottom: 28px; text-transform: uppercase; }
+
+            .hero-meta { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.14); border-radius: var(--r); }
+            .hero-meta .cell { padding: 14px 20px; border-right: 1px solid rgba(255, 255, 255, 0.12); }
+            .hero-meta .cell:last-child { border-right: none; }
+            .cell-label { font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.6); margin-bottom: 4px; }
+            .cell-value { font-size: 14px; font-weight: 600; color: var(--white); }
+            .cell-value.delivered { color: var(--teal); display: inline-flex; align-items: center; gap: 8px; }
+            .cell-value.delivered::before { content: ""; width: 8px; height: 8px; background: var(--teal); display: inline-block; border-radius: 50%; }
+
+            section { padding: 40px 48px; border-bottom: 1px solid var(--border-soft); }
+            section:last-child { border-bottom: none; }
+            .section-eyebrow { font-size: 10px; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--blue); margin-bottom: 8px; }
+            .section-eyebrow.orange { color: var(--orange); }
+            .section-eyebrow.lavender { color: var(--lavender); }
+            .section-eyebrow.electric { color: var(--electric); }
+            h2 { font-size: 22px; font-weight: 700; color: var(--navy); letter-spacing: -0.005em; margin-bottom: 18px; line-height: 1.25; }
+            h3 { font-size: 15px; font-weight: 700; color: var(--navy); margin-top: 24px; margin-bottom: 10px; }
+            section p { color: var(--text-muted); margin-bottom: 12px; }
+            section p strong { color: var(--text); font-weight: 600; }
+
+            .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border-soft); border: 1px solid var(--border-soft); margin: 18px 0 4px; }
+            .stat { background: var(--surface); padding: 18px 20px; }
+            .stat-value { font-size: 26px; font-weight: 700; color: var(--navy); line-height: 1.1; margin-bottom: 4px; }
+            .stat-value.orange { color: var(--orange); }
+            .stat-value.teal { color: var(--teal); }
+            .stat-value.electric { color: var(--electric); }
+            .stat-label { font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-subtle); }
+
+            .diagram-card { background: var(--surface-subtle); border: 1px solid var(--border-soft); border-radius: var(--r); padding: 24px 28px 28px; margin: 16px 0; }
+            .diagram-head { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; }
+            .badge { padding: 3px 9px; font-size: 9.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; border-radius: 2px; }
+            .badge.after-b { background: var(--navy); color: #fff; }
+            .diagram-title { font-size: 15px; font-weight: 700; color: var(--navy); }
+            .diagram-desc { font-size: 11.5px; color: var(--text-subtle); margin-left: auto; }
+
+            .callout { background: var(--surface-subtle); border-left: 3px solid var(--lavender); border-radius: 0 var(--r) var(--r) 0; padding: 18px 22px; margin: 14px 0; }
+            .callout.causes { background: #fdf6f2; border-left-color: var(--critical-line); }
+            .callout.principles { background: #f2f6fd; border-left-color: var(--electric); }
+            .callout-heading { font-size: 10px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-subtle); margin-bottom: 12px; }
+            .callout-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13.5px; line-height: 1.5; color: var(--text); margin-bottom: 8px; }
+            .callout-item:last-child { margin-bottom: 0; }
+            .callout-item .icon { flex-shrink: 0; font-size: 13px; line-height: 1.5; font-weight: 700; }
+            .callout.causes .icon { color: var(--critical-line); }
+            .callout.principles .icon { color: var(--electric); }
+            .callout-item strong { font-weight: 600; }
+
+            .table-wrap { margin: 16px 0; overflow-x: auto; }
+            table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border: 1px solid var(--border-soft); }
+            th { background: var(--surface-subtle); font-weight: 700; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--navy); text-align: left; padding: 10px 14px; border-bottom: 2px solid var(--navy); }
+            td { padding: 11px 14px; border-bottom: 1px solid var(--border-soft); vertical-align: top; color: var(--text-muted); }
+            td:first-child { color: var(--text); font-weight: 600; white-space: nowrap; }
+            tr:last-child td { border-bottom: none; }
+            code { font-family: var(--mono); font-size: 12px; background: #eaeef5; padding: 1px 5px; border-radius: 2px; }
+
+            .pill { display: inline-block; font-size: 10px; font-weight: 700; letter-spacing: 0.06em; padding: 2px 7px; border-radius: 2px; text-transform: uppercase; }
+            .pill.critical { background: var(--critical-tint); color: var(--critical-ink); border: 1px solid var(--critical-line); }
+            .pill.high { background: var(--high-tint); color: var(--high-ink); border: 1px solid var(--high-line); }
+            .pill.medium { background: var(--medium-tint); color: var(--medium-ink); border: 1px solid var(--medium-line); }
+            .pill.info { background: var(--info-tint); color: var(--info-ink); border: 1px solid var(--info-line); }
+            .pill.success { background: var(--success-tint); color: var(--success-ink); border: 1px solid var(--success-line); }
+
+            .pipeline { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 14px; }
+            .pipe-card { background: var(--surface); border: 1px solid var(--border-soft); border-top: 3px solid var(--blue); border-radius: var(--r); padding: 16px 18px; }
+            .pipe-card.loader { border-top-color: var(--navy); }
+            .pipe-card.audit { border-top-color: var(--electric); }
+            .pipe-card.merge { border-top-color: var(--lavender); }
+            .pipe-card.report { border-top-color: var(--orange); }
+            .pipe-num { font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--text-subtle); margin-bottom: 4px; }
+            .pipe-title { font-size: 14px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+            .pipe-id { font-family: var(--mono); font-size: 11px; color: var(--text-subtle); margin-bottom: 8px; }
+            .pipe-desc { font-size: 12.5px; color: var(--text-muted); line-height: 1.5; }
+
+            .footer { background: var(--navy); color: rgba(255, 255, 255, 0.85); padding: 28px 48px; font-size: 12.5px; display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 18px; }
+            .footer .left strong { color: var(--white); font-weight: 600; }
+            .footer .right { font-size: 11px; color: rgba(255, 255, 255, 0.6); text-align: right; }
+            .footer a { color: var(--blue); text-decoration: none; }
+
+            .svg-caption { font-size: 11px; color: var(--text-subtle); text-align: center; margin-top: 10px; }
+
+            @media print {
+                body { background: var(--white); padding: 0; }
+                .document { box-shadow: none; border: none; max-width: none; }
+                section { page-break-inside: avoid; }
+            }
+
+            @media (max-width: 720px) {
+                body { padding: 16px 8px; }
+                section { padding: 28px 22px; }
+                .hero { padding: 28px 22px; }
+                .hero-meta { grid-template-columns: 1fr 1fr; }
+                .stats { grid-template-columns: 1fr 1fr; }
+                .pipeline { grid-template-columns: 1fr; }
+                .footer { padding: 22px; }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="document">
+            <div class="brand-strip">
+                <span class="s1"></span><span class="s2"></span><span class="s3"></span>
+                <span class="s4"></span><span class="s5"></span><span class="s6"></span>
+            </div>
+
+            <!-- HERO -->
+            <div class="hero">
+                <div class="hero-top">
+                    <div class="wordmark">AKAMAI · SECURITY</div>
+                    <div class="doc-ref">Solution Overview · 2026-08-25</div>
+                </div>
+                <h1>Prolexic: Comprehensive DDoS Protection</h1>
+                <div class="hero-subtitle">Platform overview, architecture, and dual region traffic flow</div>
+
+                <div class="hero-meta">
+                    <div class="cell">
+                        <div class="cell-label">Customer</div>
+                        <div class="cell-value">Prospective / Internal Review</div>
+                    </div>
+                    <div class="cell">
+                        <div class="cell-label">Lead</div>
+                        <div class="cell-value">Julian Diaz</div>
+                    </div>
+                    <div class="cell">
+                        <div class="cell-label">Account</div>
+                        <div class="cell-value">Enterprise Architecture</div>
+                    </div>
+                    <div class="cell">
+                        <div class="cell-label">Status</div>
+                        <div class="cell-value delivered">Opportunity</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THREAT LANDSCAPE -->
+            <section>
+                <div class="section-eyebrow">Threat Landscape</div>
+                <h2>DDoS attacks in 2026 are no longer just about size</h2>
+                <p>Hyper-scale botnets such as Aisuru and Kimwolf now operate as residential proxies, blending attack traffic into legitimate user traffic. AI-driven reconnaissance and orchestration tools probe defenses in real time, identify the weakest surface, and launch multi-vector, multi-destination attacks. Stopping this class of attack requires automation paired with human intelligence and proven runbooks, not automation alone.</p>
+
+                <div class="callout causes">
+                    <div class="callout-heading">Why legacy defenses fall short</div>
+                    <div class="callout-item">
+                        <span class="icon">›</span>
+                        <div><strong>Sophisticated botnets hide in plain sight.</strong> Residential proxy traffic is difficult to distinguish from real users at the network edge.</div>
+                    </div>
+                    <div class="callout-item">
+                        <span class="icon">›</span>
+                        <div><strong>Attacks are AI-orchestrated.</strong> Automated probing finds gaps in coverage across multi-cloud and on-prem environments faster than manual response can adapt.</div>
+                    </div>
+                    <div class="callout-item">
+                        <span class="icon">›</span>
+                        <div><strong>DDoS is a smoke screen.</strong> Attacks are increasingly used alongside advanced persistent threats and multilayered, triple-extortion ransomware campaigns.</div>
+                    </div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value orange">$1.7M</div>
+                        <div class="stat-label">Avg. cost of a DDoS attack</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value">93%</div>
+                        <div class="stat-label">Of enterprises are multi-cloud</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value teal">98%</div>
+                        <div class="stat-label">Of attacks mitigated by automation</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value electric">0s</div>
+                        <div class="stat-label">Mitigation SLA, proactive controls</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PLATFORM -->
+            <section>
+                <div class="section-eyebrow orange">The Platform</div>
+                <h2>Prolexic: comprehensive DDoS protection everywhere, every time</h2>
+                <p>Prolexic stops DDoS attacks and other unwanted or malicious traffic before they reach applications, data centers, and internet-facing infrastructure, on any port and protocol. It is available on-premises, in the cloud, or as a hybrid combination of both, with a cloud-based network firewall providing an additional, centralized access control layer at the edge of the customer's network.</p>
+
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-value">20+ Tbps</div>
+                        <div class="stat-label">Dedicated defense capacity</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value orange">32+</div>
+                        <div class="stat-label">Global scrubbing center metros</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value teal">225+</div>
+                        <div class="stat-label">Frontline SOCC responders</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-value electric">100%</div>
+                        <div class="stat-label">Platform availability SLA</div>
+                    </div>
+                </div>
+
+                <h3>Three pillars: platform, people, process</h3>
+                <div class="pipeline">
+                    <div class="pipe-card loader">
+                        <div class="pipe-num">01</div>
+                        <div class="pipe-title">Platform</div>
+                        <div class="pipe-id">Automation-driven</div>
+                        <div class="pipe-desc">20+ Tbps of dedicated defense capacity across globally distributed cloud scrubbing centers, with fully managed on-demand or always-on mitigation for hybrid environments.</div>
+                    </div>
+                    <div class="pipe-card audit">
+                        <div class="pipe-num">02</div>
+                        <div class="pipe-title">People</div>
+                        <div class="pipe-id">24/7/365 SOCC</div>
+                        <div class="pipe-desc">225+ frontline SOCC responders and threat researchers analyze and respond to complex attacks, backed by a proven mitigation record since 2003.</div>
+                    </div>
+                    <div class="pipe-card merge">
+                        <div class="pipe-num">03</div>
+                        <div class="pipe-title">Process</div>
+                        <div class="pipe-id">Zero-second TTM</div>
+                        <div class="pipe-desc">Proactive mitigation controls reduce time-to-mitigate to zero seconds. Service validation establishes a traffic baseline and a custom runbook per customer.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DEPLOYMENT OPTIONS -->
+            <section>
+                <div class="section-eyebrow">Deployment Options</div>
+                <h2>Flexible on-ramp models for any origin</h2>
+                <p>All Prolexic Routed services are carrier-agnostic and support customers with a routable IP space (IPv4 /24 and/or IPv6 /48). Customers without a routable block, or on cloud-hosting providers, use Prolexic IP Protect instead.</p>
+                <div class="table-wrap">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Service</th>
+                                <th>Model</th>
+                                <th>Notes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Prolexic Routed, GRE</td>
+                                <td><span class="pill info">Cloud</span></td>
+                                <td>Primary DDoS mitigation service. Logical GRE tunnels return clean traffic asymmetrically to origin; live for 20+ years across enterprise deployments.</td>
+                            </tr>
+                            <tr>
+                                <td>Prolexic Connect</td>
+                                <td><span class="pill info">Cloud</span></td>
+                                <td>Direct VLAN connections to origin with asymmetric clean traffic return via Equinix Cloud Exchange, GTT, Megaport, or AT&amp;T TAO.</td>
+                            </tr>
+                            <tr>
+                                <td>Prolexic over Akamai Direct Connect</td>
+                                <td><span class="pill info">Cloud</span></td>
+                                <td>Private interconnect supporting 10G and 100G ports, resilient multi-router metro deployments, and jumbo frame GRE tunnels.</td>
+                            </tr>
+                            <tr>
+                                <td>Prolexic IP Protect</td>
+                                <td><span class="pill info">Cloud</span></td>
+                                <td>Symmetric service activated via DNS redirection for customers with less than a routable IPv4 /24 and/or IPv6 /48, or fragmented IP space.</td>
+                            </tr>
+                            <tr>
+                                <td>Prolexic Network Cloud Firewall</td>
+                                <td><span class="pill info">Cloud</span></td>
+                                <td>First line of defense, sitting outside all other firewalls. Customer-managed ACLs and geographic/IP-based rules, integrated via native APIs.</td>
+                            </tr>
+                            <tr>
+                                <td>Prolexic On-Prem, powered by Corero</td>
+                                <td><span class="pill medium">On-Prem</span></td>
+                                <td>Inline, sub-second automated mitigation at the customer edge without traffic backhaul. Suited to latency-sensitive real-time services.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- TWO REGION ARCHITECTURE -->
+            <section>
+                <div class="section-eyebrow lavender">Reference Architecture</div>
+                <h2>Traffic flow across two regions</h2>
+                <p>All traffic is announced to Prolexic via a single BGP route advertisement and passes through one Network Cloud Firewall layer, where ACLs and firewall rules block malicious traffic at the edge before it reaches scrubbing. From there, traffic is split across two regional Prolexic scrubbing centers, each returning clean traffic to its regional origin over a GRE tunnel. Cross-region connectivity gives each origin a redundant path if a regional scrubbing center or origin is degraded.</p>
+
+                <div class="diagram-card after">
+                    <div class="diagram-head">
+                        <span class="badge after-b">Reference</span>
+                        <span class="diagram-title">Dual-region Prolexic traffic flow</span>
+                        <span class="diagram-desc">BGP routing · single firewall layer · dual-region scrub · clean return · cross-region failover</span>
+                    </div>
+
+                    <svg viewBox="0 0 920 580" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagram of two region Prolexic DDoS protection traffic flow">
+                        <defs>
+                            <marker id="arrowNavy" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                <path d="M0,0 L8,4 L0,8 Z" fill="var(--navy)" />
+                            </marker>
+                            <marker id="arrowCrit" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                <path d="M0,0 L8,4 L0,8 Z" fill="var(--critical-line)" />
+                            </marker>
+                            <marker id="arrowTeal" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                <path d="M0,0 L8,4 L0,8 Z" fill="var(--teal)" />
+                            </marker>
+                            <marker id="arrowElectric" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto">
+                                <path d="M0,0 L8,4 L0,8 Z" fill="var(--electric)" />
+                            </marker>
+                        </defs>
+
+                        <!-- Attackers -->
+                        <text x="70" y="26" font-family="var(--font)" font-size="11" font-weight="700" fill="var(--critical-ink)">ATTACKERS / BOTNETS</text>
+                        <text x="850" y="26" font-family="var(--font)" font-size="11" font-weight="700" fill="var(--critical-ink)" text-anchor="end">ATTACKERS / BOTNETS</text>
+
+                        <!-- Attack traffic arrows converge to single BGP box -->
+                        <path d="M110,34 L400,64" stroke="var(--critical-line)" stroke-width="1.6" stroke-dasharray="4 3" fill="none" marker-end="url(#arrowCrit)" />
+                        <path d="M810,34 L520,64" stroke="var(--critical-line)" stroke-width="1.6" stroke-dasharray="4 3" fill="none" marker-end="url(#arrowCrit)" />
+
+                        <!-- Single BGP routing box -->
+                        <rect x="335" y="66" width="250" height="46" rx="2" fill="var(--surface)" stroke="var(--navy)" stroke-width="1.4" />
+                        <text x="460" y="86" text-anchor="middle" font-family="var(--font)" font-size="12" font-weight="700" fill="var(--navy)">BGP Route Advertisement</text>
+                        <text x="460" y="101" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--text-subtle)">single announcement, all traffic</text>
+
+                        <!-- Arrow down to single firewall -->
+                        <path d="M460,112 L460,150" stroke="var(--navy)" stroke-width="1.6" fill="none" marker-end="url(#arrowNavy)" />
+
+                        <!-- Single Network Cloud Firewall layer -->
+                        <rect x="310" y="150" width="300" height="56" rx="2" fill="var(--electric)" />
+                        <text x="460" y="173" text-anchor="middle" font-family="var(--font)" font-size="13" font-weight="700" fill="var(--white)">Network Cloud Firewall</text>
+                        <text x="460" y="190" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="rgba(255,255,255,0.85)">single layer · ACLs · edge control</text>
+
+                        <!-- Split arrows to each region's scrubbing center -->
+                        <path d="M400,206 L200,246" stroke="var(--electric)" stroke-width="1.6" fill="none" marker-end="url(#arrowElectric)" />
+                        <path d="M520,206 L720,246" stroke="var(--electric)" stroke-width="1.6" fill="none" marker-end="url(#arrowElectric)" />
+
+                        <!-- Region labels -->
+                        <text x="200" y="234" text-anchor="middle" font-family="var(--font)" font-size="12" font-weight="700" fill="var(--navy)" letter-spacing="1">REGION A · US-EAST</text>
+                        <text x="720" y="234" text-anchor="middle" font-family="var(--font)" font-size="12" font-weight="700" fill="var(--navy)" letter-spacing="1">REGION B · EU-WEST</text>
+
+                        <!-- Scrubbing centers -->
+                        <rect x="70" y="246" width="260" height="52" rx="2" fill="var(--navy)" />
+                        <text x="200" y="267" text-anchor="middle" font-family="var(--font)" font-size="12" font-weight="700" fill="var(--white)">Prolexic Scrubbing Center</text>
+                        <text x="200" y="283" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="rgba(255,255,255,0.75)">Ashburn, VA</text>
+
+                        <rect x="590" y="246" width="260" height="52" rx="2" fill="var(--navy)" />
+                        <text x="720" y="267" text-anchor="middle" font-family="var(--font)" font-size="12" font-weight="700" fill="var(--white)">Prolexic Scrubbing Center</text>
+                        <text x="720" y="283" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="rgba(255,255,255,0.75)">Frankfurt, DE</text>
+
+                        <!-- Arrows down to origin, clean traffic -->
+                        <path d="M200,298 L200,346" stroke="var(--teal)" stroke-width="1.8" fill="none" marker-end="url(#arrowTeal)" />
+                        <text x="212" y="326" font-family="var(--mono)" font-size="9.5" fill="var(--success-ink)">clean traffic, GRE tunnel</text>
+
+                        <path d="M720,298 L720,346" stroke="var(--teal)" stroke-width="1.8" fill="none" marker-end="url(#arrowTeal)" />
+                        <text x="608" y="326" font-family="var(--mono)" font-size="9.5" fill="var(--success-ink)" text-anchor="end">clean traffic, GRE tunnel</text>
+
+                        <!-- Origin data centers -->
+                        <rect x="70" y="346" width="260" height="56" rx="2" fill="var(--surface)" stroke="var(--teal)" stroke-width="1.6" />
+                        <text x="200" y="368" text-anchor="middle" font-family="var(--font)" font-size="12" font-weight="700" fill="var(--navy)">Origin Data Center</text>
+                        <text x="200" y="385" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--text-subtle)">Region A applications and services</text>
+
+                        <rect x="590" y="346" width="260" height="56" rx="2" fill="var(--surface)" stroke="var(--teal)" stroke-width="1.6" />
+                        <text x="720" y="368" text-anchor="middle" font-family="var(--font)" font-size="12" font-weight="700" fill="var(--navy)">Origin Data Center</text>
+                        <text x="720" y="385" text-anchor="middle" font-family="var(--mono)" font-size="10" fill="var(--text-subtle)">Region B applications and services</text>
+
+                        <!-- Cross-region failover -->
+                        <path d="M330,374 L590,374" stroke="var(--text-subtle)" stroke-width="1.4" stroke-dasharray="5 4" fill="none" />
+                        <text x="460" y="364" text-anchor="middle" font-family="var(--font)" font-size="10.5" font-weight="600" fill="var(--text-subtle)">cross-region redundant path (failover)</text>
+
+                        <!-- Legend -->
+                        <rect x="70" y="440" width="780" height="118" rx="2" fill="var(--surface-subtle)" stroke="var(--border-soft)" />
+                        <text x="90" y="462" font-family="var(--font)" font-size="10" font-weight="700" letter-spacing="0.08em" fill="var(--text-subtle)">LEGEND</text>
+
+                        <line x1="90" y1="480" x2="122" y2="480" stroke="var(--critical-line)" stroke-width="1.6" stroke-dasharray="4 3" />
+                        <text x="130" y="484" font-family="var(--font)" font-size="11" fill="var(--text-muted)">Inbound attack / suspect traffic</text>
+
+                        <line x1="90" y1="502" x2="122" y2="502" stroke="var(--navy)" stroke-width="1.6" />
+                        <text x="130" y="506" font-family="var(--font)" font-size="11" fill="var(--text-muted)">BGP-routed traffic, pre-firewall</text>
+
+                        <line x1="90" y1="524" x2="122" y2="524" stroke="var(--electric)" stroke-width="1.6" />
+                        <text x="130" y="528" font-family="var(--font)" font-size="11" fill="var(--text-muted)">Filtered traffic, split to regional scrub</text>
+
+                        <line x1="450" y1="480" x2="482" y2="480" stroke="var(--teal)" stroke-width="1.8" />
+                        <text x="490" y="484" font-family="var(--font)" font-size="11" fill="var(--text-muted)">Clean traffic return (GRE tunnel)</text>
+
+                        <line x1="450" y1="502" x2="482" y2="502" stroke="var(--text-subtle)" stroke-width="1.4" stroke-dasharray="5 4" />
+                        <text x="490" y="506" font-family="var(--font)" font-size="11" fill="var(--text-muted)">Cross-region failover path</text>
+                    </svg>
+                    <div class="svg-caption">One BGP announcement and one Network Cloud Firewall layer front both regions; scrubbing and clean-traffic return happen independently per region.</div>
+                </div>
+            </section>
+
+            <!-- FOOTER -->
+            <div class="footer">
+                <div class="left">
+                    <strong>Akamai Technologies, Inc.</strong> &nbsp;·&nbsp; Security<br />
+                    Prepared by Julian Diaz · Enterprise Architect ·
+                    <a href="mailto:judiaz@akamai.com">judiaz@akamai.com</a>
+                </div>
+                <div class="right">
+                    Prolexic: Comprehensive DDoS Protection<br />
+                    Solution Overview · v1.0 · 2026-08-25
+                </div>
+            </div>
+
+            <div class="brand-strip">
+                <span class="s6"></span><span class="s5"></span><span class="s4"></span>
+                <span class="s3"></span><span class="s2"></span><span class="s1"></span>
+            </div>
+        </div>
+    </body>
+</html>

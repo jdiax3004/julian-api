@@ -4,6 +4,7 @@ const sequelize = require('./config/database');
 const cors = require('cors');
 const expressOasGenerator = require('express-oas-generator');
 const http = require('http');
+const path = require('path');
 const { WebSocketServer } = require('ws');
 const WebSocket = require('ws');
 
@@ -15,6 +16,19 @@ expressOasGenerator.init(app, {}, './openapi.json', 5000);
 // Enable CORS
 app.use(cors());
 app.use(express.json());
+app.use(express.static(path.join(__dirname, 'frontend')));
+
+app.get('/', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'frontend', 'index.html'));
+});
+
+app.get('/prolexic-report', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'prolexic-report.html'));
+});
+
+app.get('/prolexic-report.html', (_req, res) => {
+  res.sendFile(path.join(__dirname, 'prolexic-report.html'));
+});
 
 // Ensure database connection is established
 sequelize.authenticate()
