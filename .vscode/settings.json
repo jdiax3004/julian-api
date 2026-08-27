@@ -1,0 +1,8 @@
+{
+    "chat.tools.terminal.autoApprove": {
+        "/^dig \\+short julian-labs\\.com && echo '---' && dig \\+short www\\.julian-labs\\.com$/": {
+            "approve": true,
+            "matchCommandLine": true
+        }
+    }
+}
