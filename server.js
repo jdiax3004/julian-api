@@ -5,8 +5,8 @@ const cors = require('cors');
 const expressOasGenerator = require('express-oas-generator');
 const http = require('http');
 const path = require('path');
-const { WebSocketServer } = require('ws');
 const WebSocket = require('ws');
+const { createWebSocketServers } = require('./websockets');
 
 dotenv.config();
 
@@ -30,6 +30,11 @@ app.get('/prolexic-report.html', (_req, res) => {
   res.sendFile(path.join(__dirname, 'prolexic-report.html'));
 });
 
+app.get('/websocket', (_req, res) => {
+  res.status(426).set({ Upgrade: 'websocket', Connection: 'Upgrade' })
+    .send('Connect to /websocket using a WebSocket client.');
+});
+
 // Ensure database connection is established
 sequelize.authenticate()
   .then(() => console.log('Connected to MySQL via Sequelize'))
@@ -43,7 +48,7 @@ app.use('/api/auth', authRoutes);
 // WebSocket proxy to OpenAI Realtime
 // ------------------------------------------------------------------
 const server = http.createServer(app);              // shared HTTP + WS server
-const wss = new WebSocketServer({ server, path: '/ws' });
+const { realtimeServer: wss } = createWebSocketServers(server);
 
 wss.on('connection', (client, req) => {
   console.log('✅ Browser connected to /ws');
@@ -123,4 +128,5 @@ wss.on('connection', (client, req) => {
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`HTTP & WS server running on http://localhost:${PORT}`);
+  console.log(`WebSocket echo available at ws://localhost:${PORT}/websocket`);
 });
