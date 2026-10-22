@@ -5,6 +5,9 @@
   "main": "index.js",
   "scripts": {
     "test": "node --test",
+    "build:css": "npx --yes --package=tailwindcss@3.4.1 tailwindcss -i ./frontend/tailwind.css -o ./frontend/assets/app.css --minify",
+    "testing-tools:seal": "node scripts/seal-testing-tools.js",
+    "preview": "node scripts/preview.js",
     "start": "nodemon server.js"
   },
   "keywords": [],

@@ -4,6 +4,7 @@ node_modules/
 # dotenv environment files
 .env
 .env.*.local
+.private-testing-tools/
 
 # logs
 npm-debug.log*

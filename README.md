@@ -2,6 +2,42 @@
 
 Express API and demo frontend, including a WebSocket echo origin for the Akamai → Zuplo → Akamai flow.
 
+## Protected AJAX testing tool
+
+Open **AJAX (Fetch) Login**, enter the testing passphrase, and choose **Unlock** to load the private controls. The public HTML and JavaScript contain a generic renderer; the header definitions and presets are encrypted in `config/testing-tools.enc.json`. The server decrypts them only after a successful passphrase check. The JSON preview and outgoing request share a header builder. Ordinary login works while the tool is locked.
+
+The passphrase is cleared from the input after an unlock attempt. Decrypted definitions stay in page memory, with **Lock tools** and a 15-minute automatic lock; reload also locks the tool. Neither the passphrase nor definitions are stored in browser storage. Lock clears selections and displayed responses. An authorized user can still inspect and retain headers in browser developer tools: this protects access to the tool, not acceptance of manually crafted requests by Akamai.
+
+### Local preview
+
+```sh
+npm run preview
+```
+
+Open `http://127.0.0.1:8080`. This starts the frontend and unlock endpoint without MySQL or WebSockets. Login submissions still go to the public API configured in `frontend/script.js`. A plain static file server cannot unlock the tool.
+
+Styles are compiled locally into the committed `frontend/assets/app.css`; the passphrase page does not run the external Tailwind script. After changing frontend classes, run `npm run build:css` (using pinned Tailwind 3.4.1) and include the rebuilt CSS in the deployment.
+
+### Passphrase setup and rotation
+
+The local source schema and generated passphrase are kept in the ignored `.private-testing-tools/` directory, with owner-only permissions. Keep these files private and save the passphrase in your password manager. Never commit them or include them in the static frontend.
+
+To encrypt the local schema with a strong generated passphrase:
+
+```sh
+npm run testing-tools:seal -- --generate
+```
+
+The command writes the passphrase to `.private-testing-tools/passphrase.txt`, prints only file paths, and updates the encrypted bundle. To choose your own passphrase instead, run `npm run testing-tools:seal` in an interactive terminal; input is hidden and must be confirmed. A long, randomly generated passphrase is recommended because this public repository exposes ciphertext to offline guessing. Re-seal and deploy the updated bundle to rotate the passphrase. Previously published bundles remain in Git history and can still be decrypted with their old passphrases; rotation cannot revoke definitions already disclosed. Keep a private backup of the source schema if you need to edit the presets on another machine.
+
+### Deployment and protection boundary
+
+Deploy the server changes and encrypted bundle together using the existing workflow. No passphrase is placed in the frontend or deployment environment. Serve the site and `/api/testing-tools/unlock` over HTTPS through the existing origin route. The unlock router is mounted before public CORS and API example capture, and returns responses with caching disabled. Do not configure CDN caching or request/response body logging for this route.
+
+Failed unlocks reveal no definitions. Request size, attempt rates, and concurrent decryptions are limited. Limits are per Node process; per-peer limits use the actual socket peer, so requests through a proxy may share a bucket. The tool fails closed when the encrypted bundle is missing or invalid. The private directory and `config/` must remain outside any public static directory.
+
+Encryption uses authenticated AES-256-GCM and a salted scrypt key derived from the passphrase. Its fixed scrypt parameters follow an [OWASP-listed configuration](https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#scrypt); cryptographic operations use [Node's crypto module](https://nodejs.org/api/crypto.html). No plaintext header inventory is included in this README or public scripts.
+
 ## WebSocket echo
 
 Connect to `ws://localhost:3000/websocket` locally. It uses the same HTTP server and `PORT` as the rest of the app (`3000` by default).

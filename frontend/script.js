@@ -20,29 +20,69 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ========= AJAX (Fetch) Login =========
+// The protected tool supplies only the controls unlocked for this page visit.
+function getLoginHeaders() {
+  return window.loginTestingTools.getHeaders();
+}
+
+let loginRequestController = null;
+let loginRequestVersion = 0;
+window.addEventListener("testing-tools-lock", () => {
+  loginRequestVersion += 1;
+  loginRequestController?.abort();
+  loginRequestController = null;
+});
+
 document.getElementById("loginForm")?.addEventListener("submit", async (e) => {
   e.preventDefault();
+  loginRequestController?.abort();
+  loginRequestVersion += 1;
+  let requestVersion;
+  let controller;
   const email = document.getElementById("loginEmail").value;
   const password = document.getElementById("loginPassword").value;
   const msg = document.getElementById("loginMessage");
+  const responseBox = document.getElementById("loginResponseBox");
+  responseBox.classList.add("hidden");
+  document.getElementById("loginResponse").textContent = "";
 
   try {
+    const headers = getLoginHeaders();
+    requestVersion = loginRequestVersion;
+    controller = new AbortController();
+    loginRequestController = controller;
+    msg.textContent = "Sending Fetch login…";
+    msg.className = "mt-2 text-sm text-gray-600 break-words";
     const res = await fetch(`${apiUrl}/auth/login`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers,
       body: JSON.stringify({ email, password }),
+      signal: controller.signal,
     });
-    const json = await res.json();
-    if (res.ok) {
-      msg.textContent = `✅ Fetch login success! Token: ${json.token}`;
-      msg.className = "mt-2 text-sm text-green-600";
+    const body = await res.text();
+    if (requestVersion !== loginRequestVersion) return;
+    let json;
+    try { json = JSON.parse(body); } catch { /* Mitigations can return HTML or plain text. */ }
+    document.getElementById("loginResponse").textContent = json === undefined ? body : JSON.stringify(json, null, 2);
+    responseBox.classList.remove("hidden");
+    responseBox.open = json === undefined;
+    const status = `HTTP ${res.status}${res.statusText ? ` ${res.statusText}` : ""}`;
+    if (res.ok && json?.token) {
+      msg.textContent = `✅ Fetch login success (${status})! Token: ${json.token}`;
+      msg.className = "mt-2 text-sm text-green-600 break-words";
     } else {
-      msg.textContent = json.message || "Fetch login failed";
-      msg.className = "mt-2 text-sm text-red-600";
+      const detail = json?.message || json?.error || (json === undefined
+        ? "Non-JSON response received. Inspect the response body for a challenge or denial."
+        : "No login token returned. Inspect the response body.");
+      msg.textContent = `${status} — ${detail}`;
+      msg.className = "mt-2 text-sm text-red-600 break-words";
     }
-  } catch {
-    msg.textContent = "Network error";
-    msg.className = "mt-2 text-sm text-red-600";
+  } catch (error) {
+    if (controller?.signal.aborted || (requestVersion !== undefined && requestVersion !== loginRequestVersion)) return;
+    msg.textContent = `Request failed: ${error.message}. Check the browser Network panel for connection or CORS details.`;
+    msg.className = "mt-2 text-sm text-red-600 break-words";
+  } finally {
+    if (loginRequestController === controller) loginRequestController = null;
   }
 });
 

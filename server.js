@@ -7,10 +7,14 @@ const http = require('http');
 const path = require('path');
 const WebSocket = require('ws');
 const { createWebSocketServers } = require('./websockets');
+const { createTestingToolsRouter } = require('./routes/testing-tools');
 
 dotenv.config();
 
 const app = express();
+// Keep unlock credentials and decrypted definitions out of API example capture
+// and out of the public CORS policy. This router handles its own body parsing.
+app.use('/api/testing-tools', createTestingToolsRouter());
 expressOasGenerator.init(app, {}, './openapi.json', 5000);
 
 // Enable CORS

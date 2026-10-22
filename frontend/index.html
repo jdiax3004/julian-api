@@ -4,13 +4,7 @@
   <meta charset="UTF-8" />
   <title>Julian's Labs 🔬</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- ✅ Tailwind Play CDN (locked version) -->
-  <script src="https://cdn.tailwindcss.com/3.4.1"></script>
-  <script>
-    tailwind.config = {
-      theme: { extend: { colors: { brand: '#2563eb' } } }
-    }
-  </script>
+  <link rel="stylesheet" href="/assets/app.css" />
 </head>
 
 <body class="bg-gray-100 min-h-screen flex items-center justify-center">
@@ -131,11 +125,51 @@
                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
           <input type="password" id="loginPassword" placeholder="Password" required
                  class="w-full rounded-lg border border-gray-300 px-3 py-2 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand" />
+          <div id="loginTestingTools" class="rounded-xl border border-gray-200 bg-gray-50 p-4 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-2">
+              <h3 class="text-sm font-semibold text-gray-800">Testing tools</h3>
+              <button id="loginToolsLock" type="button" class="hidden text-sm text-brand hover:underline">Lock tools</button>
+            </div>
+            <div id="loginToolsLocked" class="space-y-2">
+              <p class="text-xs text-gray-600">Enter your passphrase to load private testing controls. Access locks after 15 minutes or when you leave this page.</p>
+              <label for="loginToolsPassphrase" class="block text-sm font-medium text-gray-700">Testing passphrase</label>
+              <div class="flex flex-wrap items-center gap-2">
+                <input id="loginToolsPassphrase" type="password" autocomplete="off" spellcheck="false" autocapitalize="none"
+                       class="min-w-0 flex-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:ring-2 focus:ring-brand" />
+                <button id="loginToolsUnlock" type="button" class="rounded-lg bg-gray-800 px-4 py-2 text-sm text-white hover:bg-gray-700 disabled:opacity-50">Unlock</button>
+              </div>
+            </div>
+            <p id="loginToolsStatus" class="text-xs text-gray-600" role="status" aria-live="polite">Locked. Standard login is available.</p>
+            <div id="loginToolsUnlocked" class="hidden space-y-4">
+              <div class="flex flex-wrap items-center justify-between gap-2">
+                <label class="flex items-center gap-2 text-sm font-semibold text-gray-800">
+                  <input id="loginHeadersEnabled" type="checkbox" class="h-4 w-4 accent-blue-600" />
+                  <span id="loginToolsTitle"></span>
+                </label>
+                <button id="loginHeadersReset" type="button" class="text-sm text-brand hover:underline">Clear overrides</button>
+              </div>
+              <p id="loginToolsDescription" class="text-xs text-gray-600"></p>
+              <fieldset id="loginHeaderControls" disabled class="space-y-4 disabled:opacity-50"></fieldset>
+              <div>
+                <div class="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <label for="loginHeadersPreview" class="text-sm font-semibold text-gray-700">Headers to send</label>
+                  <span id="loginHeadersCount" class="text-xs text-gray-500" role="status"></span>
+                </div>
+                <textarea id="loginHeadersPreview" readonly rows="3" spellcheck="false" aria-describedby="loginHeadersHelp"
+                          class="block w-full resize-y rounded-lg bg-gray-900 p-3 font-mono text-xs leading-6 text-green-300 focus:ring-2 focus:ring-brand"></textarea>
+                <p id="loginHeadersHelp" class="mt-1 text-xs text-gray-500">JSON preview of the headers this tool adds to the login request. The browser and page scripts may add others.</p>
+              </div>
+            </div>
+          </div>
           <button type="submit" class="bg-brand text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition w-full">
             Login via Fetch
           </button>
         </form>
-        <p id="loginMessage" class="mt-2 text-sm"></p>
+        <p id="loginMessage" class="mt-2 text-sm break-words" role="status"></p>
+        <details id="loginResponseBox" class="hidden mt-3">
+          <summary class="cursor-pointer text-sm font-medium text-gray-700">Response body</summary>
+          <pre id="loginResponse" class="mt-2 max-h-72 overflow-auto whitespace-pre-wrap break-words rounded-lg bg-gray-900 p-3 font-mono text-xs text-gray-100"></pre>
+        </details>
       </section>
 
       <!-- HTML Form Login -->
@@ -365,8 +399,9 @@
   </div>
 
   <!-- jQuery for jQuery-login tab -->
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha384-vtXRMe3mGCbOeY7l30aIg8H9p3GdeSe4IFlP6G8JMa7o7lXvnz3GFKzPxzJdPfGK" crossorigin="anonymous"></script>
   <!-- App logic -->
+  <script src="testing-tools.js"></script>
   <script src="script.js"></script>
 </body>
 </html>
