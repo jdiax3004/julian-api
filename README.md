@@ -32,7 +32,18 @@ The command writes the passphrase to `.private-testing-tools/passphrase.txt`, pr
 
 ### Deployment and protection boundary
 
-Deploy the server changes and encrypted bundle together using the existing workflow. No passphrase is placed in the frontend or deployment environment. Serve the site and `/api/testing-tools/unlock` over HTTPS through the existing origin route. The unlock router is mounted before public CORS and API example capture, and returns responses with caching disabled. Do not configure CDN caching or request/response body logging for this route.
+Deploy the server changes and encrypted bundle together using the existing workflow. No passphrase is placed in the frontend or deployment environment. **The gateway is a separate deployment:** the `jdiax3004/julian-api-gtw` repository also needs a `POST /api/testing-tools/unlock` route. Use its existing URL Forward handler and backend base URL (`https://origin-xyz.julian-labs.com`), preserving the request path and JSON body, with `corsPolicy: none`. A gateway 404 for this POST means it never reached this app; pushing this repository alone cannot register a Zuplo route.
+
+The gateway's API Security plugin must exclude `/api/testing-tools` and its descendants from `shouldLog` before enabling the route. This prevents its body capture from exporting passphrases or decrypted definitions. Keep normal API logging unchanged, omit private request/response examples, and disable caching on this path. Serve the entire request path over HTTPS. At the origin, the unlock router is mounted before public CORS and API example capture, and returns responses with caching disabled.
+
+After deploying both repositories, test routing without a real passphrase:
+
+```sh
+curl -i https://www.julian-labs.com/api/testing-tools/unlock \
+  -H 'Content-Type: application/json' --data '{}'
+```
+
+Expect the origin's `400` JSON response (`Invalid unlock request.`) and `Cache-Control: no-store`. This checks the POST route without attempting decryption. Opening the endpoint in a browser sends GET, which can still return gateway 404 because the route permits only POST.
 
 Failed unlocks reveal no definitions. Request size, attempt rates, and concurrent decryptions are limited. Limits are per Node process; per-peer limits use the actual socket peer, so requests through a proxy may share a bucket. The tool fails closed when the encrypted bundle is missing or invalid. The private directory and `config/` must remain outside any public static directory.
 
@@ -64,22 +75,28 @@ npm test
 
 ## Akamai → Zuplo → Akamai → this app
 
-The existing public hostname can serve both Akamai legs using separate paths:
+The working deployment uses the same Akamai property for both passes, with separate paths for the Zuplo gateway and the echo origin. Zuplo sends input and output messages to Firewall for AI over HTTPS before forwarding them.
+
+![WebSocket architecture showing hostnames, Akamai routing rules, the Zuplo gateway, Linode echo origin, and separate FAI inspection requests and decisions](docs/architecture/websocket-fai-architecture-spaced.png)
+
+[Full-size SVG](docs/architecture/websocket-fai-architecture-spaced.svg) · [Editable Excalidraw diagram](docs/architecture/websocket-fai-architecture-spaced.excalidraw) · [Configuration, test results, and recovery notes](docs/architecture/README.md)
+
+Deployment snapshot verified on **27 October 2026**: Akamai property **11192282**, version **63**, active on staging and production. Blue arrows are bidirectional WebSocket connections; solid green arrows are FAI inspection requests and dashed green arrows are their decisions.
 
 ```text
 Client: wss://www.julian-labs.com/ws/akamai
-  → Akamai rule /ws/*: origin = Zuplo deployment
+  → Akamai rule /ws/*: origin = akamai-fai-websockets-demo-main-d7b5564.zuplo-akamai-demo-poc.zuplo.work
   → Zuplo route /ws/akamai: upstream = wss://www.julian-labs.com/websocket
-  → Akamai rule /websocket: origin = this app's direct Linode hostname
-  → Node app: /websocket on port 3000, normally behind the origin HTTPS proxy
+  → Akamai rule /websocket: origin = origin-xyz.julian-labs.com (172.105.5.168)
+  → Nginx HTTPS :443 → Node /websocket on 127.0.0.1:3000
 ```
 
-After deploying this change:
+To recreate or update the deployment:
 
-1. In Akamai's **WebSocket Origin** rule matching `/websocket`, replace `ws-go.nchen.work` with the direct origin hostname of the Linode hosting this app. Reuse the website's existing direct origin hostname if possible. Otherwise, create an A record such as `ws-origin.julian-labs.com` pointing directly to the Linode IP. That is a proposed record, not one provisioned by this repository.
+1. In Akamai's **WebSocket Origin** rule matching `/websocket`, use the direct origin hostname of the Linode hosting this app. The active origin is `origin-xyz.julian-labs.com`, pointing to `172.105.5.168`. The alternate `ws-origin.julian-labs.com` record points to the same IP; it is provisioned but is not the active return-leg origin. The previous `ws-go.nchen.work` origin is retired.
 2. Make the origin's HTTPS virtual host accept the chosen hostname and serve a certificate valid for it. With **Forward Host Header = Origin Hostname**, align the forwarded Host, origin TLS SNI, and certificate verification with that hostname. Preserve `/websocket` when forwarding to Node.
 3. Enable Akamai's **WebSockets** behavior on both relevant rules. Keep `/ws/*` pointed at Zuplo and `/websocket` pointed at Linode. The direct origin record must not resolve back to Akamai or Zuplo, which would create a routing loop. Akamai's documented 300-second Read Timeout recommendation applies to long-poll fallback, not to an established WebSocket's lifetime.
-4. In Zuplo, keep the `/ws/akamai` WebSocket URL shown in the screenshot: `wss://www.julian-labs.com/websocket`. To replace the Heroku-backed `/ws/echo` route as well, set its WebSocket URL to this same value. Existing message inspection policies can still block or transform messages before/after the echo server.
+4. In Zuplo, keep the `/ws/akamai` upstream WebSocket URL set to `wss://www.julian-labs.com/websocket`. The separate `/ws/echo` route still referenced Heroku when inspected; the verified flow uses `/ws/akamai`. Existing message inspection policies can block or transform messages before/after the echo server.
 5. Test the origin directly, then `wss://www.julian-labs.com/websocket`, then the complete route `wss://www.julian-labs.com/ws/akamai`. Verify a `101` upgrade, repeated echoes, and an idle connection beyond the configured proxy timeouts.
 
 Only `/ws/akamai` goes through the full inspection chain. `/websocket` is the second-leg entry point. If the deployment uses SiteShield, apply its origin access restrictions to the new Linode origin as well.

@@ -263,7 +263,9 @@
         const message = response.status === 401 ? "Incorrect passphrase. Try again."
           : response.status === 429 ? "Too many attempts. Wait a few minutes before trying again."
           : response.status === 503 ? "Testing tools are not configured on this server."
-          : "Could not unlock testing tools. Please try again.";
+          : response.status === 404 ? "Unlock endpoint not found (HTTP 404). The deployed gateway needs the testing-tools route."
+          : response.status === 405 ? "Unlock request method rejected (HTTP 405). Check the deployed gateway route."
+          : `Could not unlock testing tools (HTTP ${response.status}). Please try again.`;
         lockTools(message);
         return;
       }
